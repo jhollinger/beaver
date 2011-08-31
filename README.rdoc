@@ -24,7 +24,7 @@ Write your beaver file:
   hit :failed_login, :method => :post, :path => '/login', :status => 401
 
   # Log all POSTs which resulted in a 404 (broken forms?)
-  hit :bad_posts, :method => :post, :status => 404 do
+  hit :broken_forms, :method => :post, :status => 404 do
     puts "Someone got a 404 posting to #{path}, passing #{params}"
   end
 
@@ -66,8 +66,27 @@ Read the full documentation at http://jordanhollinger.com/docs/beaver/.
     ...
   end
 
+== DSLs are great and all, but what's really going on here?
+
+  # This returns a new Beaver::Beaver object with some logs to parse
+  beaver = Beaver.new('/var/www/rails-app/log/production.log*')
+
+  # Parse the logs into Beaver::Request objects (available through beaver.requests)
+  beaver.parse
+
+  # Create a Beaver::Dam for certain requests to hit
+  beaver.hit :broken_forms, :method => :post, :status => 404
+
+  # Optionally, handle the entire batch of Beaver::Requests for a Beaver::Dam
+  beaver.dam :broken_forms do
+    puts "#{hits.size} broken forms"
+  end
+
+  # Now filter the Requests through the Dams and callbacks you've just defined
+  beaver.filter
+
 == 3 Why Beaver?
-Beavers chew through logs and make something useful from them.
+Beavers chew through logs to make something useful.
 
 == 4 License
 Copyright 2011 Jordan Hollinger
