@@ -1,0 +1,11 @@
+#!/usr/bin/env ruby
+
+require 'rubygems'
+require 'beaver'
+
+beaver_file = File.open(ARGV.shift, &:read)
+log_files = ARGV
+
+Beaver.parse *log_files do
+  eval beaver_file
+end

@@ -1,0 +1,75 @@
+== Need to parse Rails log files? Get a Beaver to help!
+Beaver is a light DSL for parsing Rails production logs back into usable data. It answers questions like:
+
+* How many failed logins have there been today? Were they for the same user? From the same IP?
+* How many 500, 404, etc. errors yesterday? On what pages?
+* How many Widgets were created yesterday, and with what data?
+* Did anyone submit a form with the words "kill them all"? Yikes.
+
+Beaver is *not* intended as a replacement for Google Analytics, as it is trying to answer some differents kinds of questions.
+Rails logs contain some great information, but I've never found a good tool for parsing them programatically (except for speed analyzers).
+Hopefully Beaver can fill that niche for you.
+
+== 0 Installation
+Beaver is currently experimental, and as such is not published to rubygems.org. To install, download the tar, then
+  tar -xzf jhollinger-beaver-whatever-junk.tar.gz
+  cd jhollinger-beaver-whatever-junk
+  gem build beaver.gemspec
+  [sudo] gem install beaver-version.gem
+
+== 1 Basic usage
+Write your beaver file:
+
+  # Log all the failed logins
+  hit :failed_login, :method => :post, :path => '/login', :status => 401
+
+  # Log all POSTs which resulted in a 404 (broken forms?)
+  hit :bad_posts, :method => :post, :status => 404 do
+    puts "Someone got a 404 posting to #{path}, passing #{params}"
+  end
+
+  # Report each time someone went anywhere under /help
+  hit :help, :path => %r|^/help| do
+    throw :skip if path == '/help/page_i_want_to_ignore'
+    puts "#{ip} looked for help at #{path}"
+  end
+
+  # Log all 500-level errors
+  hit :server_error, :status => (500..503)
+
+  # Report on the failed logins en-mass
+  dam :failed_login do
+    ips = hits.group_by &:ip
+    puts "There were #{hits.size} failed logins from #{ips.size} IP addresses"
+  end
+
+  # Summary report of server errors
+  dam :server_errors do
+    puts "There were #{hits.select { |h| h.status == 500 }.size} 500 errors"
+    puts "There were #{hits.select { |h| h.status == 501 }.size} 501 errors"
+  end
+
+Run it, passing in some log files:
+
+    beaver my_beaver_file.rb /var/www/rails-app/log/production.log*
+
+Read the full documentation at http://jordanhollinger.com/docs/beaver/.
+
+== 2 Write your own script
+
+  require 'rubygems'
+  require 'beaver'
+
+  Beaver.parse '/var/www/rails-app/log/production.log*' do
+    # Same as Basic usage
+    hit :failed_login, :method => :post, :path => '/login', :status => 401
+    ...
+  end
+
+== 3 Why Beaver?
+Beavers chew through logs and make something useful from them.
+
+== 4 License
+Copyright 2011 Jordan Hollinger
+
+Licensed under the Apache License
