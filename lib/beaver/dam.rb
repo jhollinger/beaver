@@ -27,6 +27,10 @@ module Beaver
       set_matchers(matchers)
     end
 
+    def ips
+      @ips ||= @hits.map(&:ip).uniq
+    end
+
     def matches?(request)
       checks = 0
       trues = 0
@@ -62,7 +66,7 @@ module Beaver
         checks += 1
         trues += 1 if matching_hashes? @match_params, request.params
       end
-      checks > 0 and checks == trues
+      checks == trues
     end
 
     private

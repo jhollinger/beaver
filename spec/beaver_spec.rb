@@ -17,4 +17,10 @@ describe Beaver do
     @beaver.filter
     dam.hits.size.should == 1
   end
+
+  it "should capture all IP addresses" do
+    dam = @beaver.hit :all
+    @beaver.filter
+    dam.ips.size.should == 2
+  end
 end

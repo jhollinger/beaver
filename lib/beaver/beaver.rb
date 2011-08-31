@@ -67,6 +67,10 @@ module Beaver
           request = nil
           handle.each_line do |line|
             request = Request.for(line).new if request.nil?
+            if request.bad?
+              request = nil
+              next
+            end
             request << line
             if request.completed?
               @requests << request

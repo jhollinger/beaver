@@ -16,6 +16,8 @@ module Beaver
         REGEX_METHOD =~ lines
       end
 
+      def valid?; true; end
+
       def completed?
         REGEX_COMPLETED =~ lines
       end

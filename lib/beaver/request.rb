@@ -8,12 +8,15 @@ module Beaver
     end
 
     def self.for(lines)
-      @types.select { |t| t.match? lines }.first || self
+      @types.select { |t| t.match? lines }.first || BadRequest
     end
 
     def initialize(lines=nil)
       @lines = lines || ''
     end
+
+    def good?; true; end
+    def bad?; not good?; end
 
     def <<(line)
       @lines << line << $/
@@ -65,5 +68,9 @@ module Beaver
     def parse_ip
       ''
     end
+  end
+
+  class BadRequest < Request
+    def good?; false; end
   end
 end

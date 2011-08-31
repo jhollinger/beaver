@@ -40,7 +40,6 @@ Write your beaver file:
 
   # Report on the failed logins en-mass
   dam :failed_login do
-    ips = hits.group_by &:ip
     puts "There were #{hits.size} failed logins from #{ips.size} IP addresses"
   end
 
