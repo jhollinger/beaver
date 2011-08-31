@@ -11,6 +11,8 @@ Beaver is *not* intended as a replacement for Google Analytics, as it is trying 
 Rails logs contain some great information, but I've never found a good tool for using them programatically (except for speed analyzers).
 Hopefully Beaver can fill that niche for you.
 
+Read the full documentation at http://jordanhollinger.com/docs/beaver/.
+
 == 0 Installation
 Beaver is currently experimental, and as such is not published to rubygems.org. To install, download the tar, then
   tar -xzf jhollinger-beaver-whatever-junk.tar.gz
@@ -53,8 +55,6 @@ Run ''beaver'' from the command line, passing in your beaver file and some logs:
 
   beaver my_beaver_file.rb /var/www/rails-app/log/production.log*
 
-Read the full documentation at http://jordanhollinger.com/docs/beaver/.
-
 == 2 Use your own Beaver
 
   require 'rubygems'
@@ -89,7 +89,13 @@ Okay.
   # Now filter the Requests through the Dams and callbacks you've just defined
   beaver.filter
 
-== 4 License
+== TODO
+* Convert request parameters into an actual Hash, rather than just a string that looks like a Hash.
+* Add support for Apache/Nginx/Rack::CommonLogger
+* Add support for parsing and matching based on response time
+* Add support for parsing and matching based on request datetime
+
+== 5 License
 Copyright 2011 Jordan Hollinger
 
 Licensed under the Apache License
