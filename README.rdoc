@@ -18,7 +18,7 @@ Beaver is currently experimental, and as such is not published to rubygems.org. 
   gem build beaver.gemspec
   [sudo] gem install beaver-version.gem
 
-== 1 Basic usage
+== 1 Use the command-line Beaver
 Write your beaver file:
 
   # Log all the failed logins
@@ -49,13 +49,13 @@ Write your beaver file:
     puts "There were #{hits.select { |h| h.status == 501 }.size} 501 errors"
   end
 
-Run it, passing in some log files:
+Run ''beaver'' from the command line, passing in your beaver file and some logs:
 
-    beaver my_beaver_file.rb /var/www/rails-app/log/production.log*
+  beaver my_beaver_file.rb /var/www/rails-app/log/production.log*
 
 Read the full documentation at http://jordanhollinger.com/docs/beaver/.
 
-== 2 Write your own script
+== 2 Use your own Beaver
 
   require 'rubygems'
   require 'beaver'
@@ -66,14 +66,16 @@ Read the full documentation at http://jordanhollinger.com/docs/beaver/.
     ...
   end
 
-== 3 DSLs are great and all, but what's really going on here?
+== 3 Forget this cute DSL crap, I just want a library
+Okay.
 
-  # This returns a new Beaver::Beaver object with some logs to parse
+  require 'rubygems'
+  require 'beaver'
+
   beaver = Beaver.new('/var/www/rails-app/log/production.log*')
 
   # Parse the logs into Beaver::Request objects.
-  # You may just stop here if you like. The Request objects are now available through beaver.requests,
-  # and that alone is quite useful.
+  # They are available through beaver.requests, which is pretty useful by itself.
   beaver.parse
 
   # Create a Beaver::Dam for certain requests to hit
