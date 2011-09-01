@@ -17,7 +17,7 @@ module Beaver
       def valid?; true; end
 
       def completed?
-        REGEX_COMPLETED =~ lines
+        REGEX_COMPLETED =~ @lines
       end
 
       protected

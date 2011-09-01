@@ -3,7 +3,6 @@ module Beaver
     BLANK_STR = ''
     BLANK_HASH = {}
 
-    attr_accessor :lines
     @types = []
 
     def self.<<(type)

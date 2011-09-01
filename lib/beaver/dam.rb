@@ -17,6 +17,8 @@ module Beaver
     #  :params_str => A regular expressing matching the Parameters string
     # 
     #  :params => A Hash of Symbol=>String/Regexp pairs: {:username => 'bob', :email => /@gmail\.com$/}. All must match.
+    #
+    #  :match => A "catch-all" Regex that will be matched against the entire request string
     # 
     # The last argument may be a block, which will be called everytime this Dam is hit.
     # The block will be run in the context of the Request and will have access to the above options as methods.
@@ -42,6 +44,7 @@ module Beaver
       return false unless @match_ip_s.nil? or @match_ip_s == request.ip
       return false unless @match_ip_r.nil? or @match_ip_r =~ request.ip
       return false unless @match_params_str.nil? or @match_params_str =~ request.params_str
+      return false unless @match_r.nil? or @match_r =~ request.to_s
       return false unless @match_params.nil? or matching_hashes?(@match_params, request.params)
       return true
     end
@@ -101,8 +104,13 @@ module Beaver
 
       case matchers[:params].class.name
         when Hash.name then @match_params = matchers[:params]
-        else raise ArgumentError, "IP must be either a String or a Regexp (it's a #{matchers[:params].class.name})"
+        else raise ArgumentError, "Params must be either a String or a Regexp (it's a #{matchers[:params].class.name})"
       end if matchers[:params]
+
+      case matchers[:match].class.name
+        when Regexp.name then @match_r = matchers[:match]
+        else raise ArgumentError, "Match must be a Regexp (it's a #{matchers[:match].class.name})"
+      end if matchers[:match]
     end
   end
 end

@@ -47,4 +47,10 @@ describe Beaver do
     @beaver.filter
     dam.hits.first.params.should == {:hi => "Hello", :boo => "Boo", :sub => {1 => 5, :eight => 8, 2=> 3, 7=>10}, :end => "The End", :a => ["1", "2", "3"], :"another end"=>"The End 2"}
   end
+
+  it "should match against the entire request" do
+    dam = @beaver.hit :db_hits, :match => /ActiveRecord: \d/
+    @beaver.filter
+    dam.hits.size.should == 1
+  end
 end
