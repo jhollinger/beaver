@@ -13,6 +13,9 @@ module Beaver
     COMMA = ','
     LETTER_REGEX = /^[a-z]$/i
 
+    # Converts a string representation of a Hash into YAML, then into a Hash.
+    # This is targeted towards the Parameters value in Rails logs. It is assumed that every key is a represented as a String in the logs.
+    # All keys, except for numeric keys, will be converted to Symbols.
     def self.str_to_hash(str)
       s = ''
       indent = 0

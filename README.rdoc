@@ -26,9 +26,14 @@ Write your beaver file:
   # Log all the failed logins
   hit :failed_login, :method => :post, :path => '/login', :status => 401
 
+  # Report on each widget that was created
+  hit :new_widgets, :path => '/widgets', :method => :post, :status => 302 do
+    puts "A Widget named #{params[:widget][:name]} was created!"
+  end
+
   # Log all POSTs which resulted in a 404 (broken forms?)
   hit :broken_forms, :method => :post, :status => 404 do
-    puts "Someone got a 404 posting to #{path}, passing #{params}"
+    puts "Someone got a 404 posting to #{path}, passing #{params_str}"
   end
 
   # Report each time someone went anywhere under /help
@@ -90,12 +95,12 @@ Okay.
   beaver.filter
 
 == TODO
-* Convert request parameters into an actual Hash, rather than just a string that looks like a Hash.
+* Improve conversion of request parameters String into Hash
 * Add support for Apache/Nginx/Rack::CommonLogger
 * Add support for parsing and matching based on response time
 * Add support for parsing and matching based on request datetime
 
-== 5 License
+== 4 License
 Copyright 2011 Jordan Hollinger
 
 Licensed under the Apache License

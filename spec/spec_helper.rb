@@ -1,6 +1,7 @@
 require 'rspec'
 
 # Load Beaver
+require File.dirname(__FILE__) + '/../lib/beaver/utils'
 require File.dirname(__FILE__) + '/../lib/beaver/beaver'
 require File.dirname(__FILE__) + '/../lib/beaver/dam'
 require File.dirname(__FILE__) + '/../lib/beaver/request'

@@ -1,5 +1,8 @@
 module Beaver
   class Request
+    BLANK_STR = ''
+    BLANK_HASH = {}
+
     attr_accessor :lines
     @types = []
 
@@ -14,6 +17,8 @@ module Beaver
     def initialize(lines=nil)
       @lines = lines || ''
     end
+
+    def to_s; @lines; end
 
     def good?; true; end
     def bad?; not good?; end
@@ -34,6 +39,10 @@ module Beaver
       @status ||= parse_status
     end
 
+    def params_str
+      @params_str ||= parse_params_str
+    end
+
     def params
       @params ||= parse_params
     end
@@ -50,7 +59,7 @@ module Beaver
     protected
 
     def parse_path
-      ''
+      BLANK_STR
     end
 
     def parse_method
@@ -61,12 +70,16 @@ module Beaver
       0
     end
 
+    def parse_params_str
+      BLANK_STR
+    end
+
     def parse_params
-      {}
+      BLANK_HASH
     end
 
     def parse_ip
-      ''
+      BLANK_STR
     end
   end
 

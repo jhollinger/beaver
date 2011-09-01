@@ -14,6 +14,8 @@ module Beaver
     # 
     #  :ip => String for exact match, or Regex
     # 
+    #  :params_str => A regular expressing matching the Parameters string
+    # 
     #  :params => A Hash of Symbol=>String/Regexp pairs: {:username => 'bob', :email => /@gmail\.com$/}. All must match.
     # 
     # The last argument may be a block, which will be called everytime this Dam is hit.
@@ -32,41 +34,16 @@ module Beaver
     end
 
     def matches?(request)
-      checks = 0
-      trues = 0
-      if @match_path_s
-        checks += 1
-        trues += 1 if @match_path_s == request.path
-      end
-      if @match_path_r
-        checks += 1
-        trues += 1 if @match_path_r =~ request.path
-      end
-      if @match_method_s
-        checks += 1
-        trues += 1 if @match_method_s == request.method
-      end
-      if @match_method_a
-        checks += 1
-        trues += 1 if @match_method_a.include? request.method
-      end
-      if @match_status
-        checks += 1
-        trues += 1 if @match_status === request.status
-      end
-      if @match_ip_s
-        checks += 1
-        trues += 1 if @match_ip_s == request.ip
-      end
-      if @match_ip_r
-        checks += 1
-        trues += 1 if @match_ip_r =~ request.ip
-      end
-      if @match_params
-        checks += 1
-        trues += 1 if matching_hashes? @match_params, request.params
-      end
-      checks == trues
+      return false unless @match_path_s.nil? or @match_path_s == request.path
+      return false unless @match_path_r.nil? or @match_path_r =~ request.path
+      return false unless @match_method_s.nil? or @match_method_s == request.method
+      return false unless @match_method_a.nil? or @match_method_a.include? request.method
+      return false unless @match_status.nil? or @match_status === request.status
+      return false unless @match_ip_s.nil? or @match_ip_s == request.ip
+      return false unless @match_ip_r.nil? or @match_ip_r =~ request.ip
+      return false unless @match_params_str.nil? or @match_params_str =~ request.params_str
+      return false unless @match_params.nil? or matching_hashes?(@match_params, request.params)
+      return true
     end
 
     private
@@ -74,8 +51,8 @@ module Beaver
     def matching_hashes?(a,b)
       intersecting_keys = a.keys & b.keys
       if intersecting_keys.any?
-        a_values = a.values_at(intersecting_keys)
-        b_values = b.values_at(intersecting_keys)
+        a_values = a.values_at(*intersecting_keys)
+        b_values = b.values_at(*intersecting_keys)
         indicies = (0..b_values.size-1)
         indicies.all? do |i|
           if a_values[i].is_a? String
@@ -116,6 +93,11 @@ module Beaver
         when Regexp.name then @match_status_r = matchers[:ip]
         else raise ArgumentError, "IP must be either a String or a Regexp (it's a #{matchers[:ip].class.name})"
       end if matchers[:ip]
+
+      case matchers[:params_str].class.name
+        when Regexp.name then @match_params_str = matchers[:params_str]
+        else raise ArgumentError, "Params String must be a Regexp (it's a #{matchers[:params_str].class.name})"
+      end if matchers[:params_str]
 
       case matchers[:params].class.name
         when Hash.name then @match_params = matchers[:params]
