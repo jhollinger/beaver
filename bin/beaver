@@ -1,11 +1,23 @@
 #!/usr/bin/env ruby
 
+require 'optparse'
 require 'rubygems'
 require 'beaver'
 
-beaver_file = File.open(ARGV.shift, &:read)
-log_files = ARGV
+# This application was installed by RubyGems as part of the 'beaver' gem.
 
-Beaver.parse *log_files do
+o = OptionParser.new do |opts|
+  opts.banner = 'Usage: beaver dams.rb /path/to/rails/production.log*'
+end
+o.parse!
+
+if ARGV.size < 2
+  puts o.banner
+  exit 1
+end
+
+beaver_file = File.open(ARGV.shift, &:read)
+
+Beaver.parse *ARGV do
   eval beaver_file
 end

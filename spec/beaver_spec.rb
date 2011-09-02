@@ -12,6 +12,30 @@ describe Beaver do
     dam.hits.size.should == 1
   end
 
+  it "should skip all of the created widgets" do
+    dam = @beaver.hit :created_widget, :path => '/widgets', :method => :post do
+      skip!
+    end
+    @beaver.filter
+    dam.hits.size.should == 0
+  end
+
+  it "should only count the created widgets twice" do
+    dam = @beaver.hit :created_widgets_1, :path => '/widgets', :method => :post
+    dam = @beaver.hit :created_widgets_2, :path => '/widgets', :method => :post
+    @beaver.filter
+    dam.hits.size.should == 1
+  end
+
+  it "should only count the created widgets once" do
+    dam = @beaver.hit :created_widgets_1, :path => '/widgets', :method => :post do
+      final!
+    end
+    dam = @beaver.hit :created_widgets_2, :path => '/widgets', :method => :post
+    @beaver.filter
+    dam.hits.size.should == 0
+  end
+
   it "should count the number of updated widgets" do
     dam = @beaver.hit :update_widget, :path => %r|^/widgets/\d+|, :method => :put
     @beaver.filter

@@ -1,29 +1,30 @@
 module Beaver
+  # A Dam "traps" certain Requests, using the following matching options:
+  # 
+  # Matchers:
+  #
+  #  :path => String for exact match, or Regex
+  #
+  #  :method => A Symbol of :get, :post, :update or :delete, or any array of any (reads the magic _method field if present)
+  #
+  #  :status => A Fixnum like 404 or a Range like (500..503)
+  # 
+  #  :ip => String for exact match, or Regex
+  # 
+  #  :params_str => A regular expressing matching the Parameters string
+  # 
+  #  :params => A Hash of Symbol=>String/Regexp pairs: {:username => 'bob', :email => /@gmail\.com$/}. All must match.
+  #
+  #  :match => A "catch-all" Regex that will be matched against the entire request string
+  # 
+  # The last argument may be a block, which will be called everytime this Dam is hit.
+  # The block will be run in the context of the Request object. This can be used for 
+  # further checks or for reporting purposes.
   class Dam
     attr_reader :name, :callback, :hits
 
-    # Name should be a unique symbol.
-    # 
-    # Matchers:
-    #
-    #  :path => String for exact match, or Regex
-    #
-    #  :method => A Symbol of :get, :post, :update or :delete, or any array of any (reads the magic _method field if present)
-    #
-    #  :status => A Fixnum like 404 or a Range like (500..503)
-    # 
-    #  :ip => String for exact match, or Regex
-    # 
-    #  :params_str => A regular expressing matching the Parameters string
-    # 
-    #  :params => A Hash of Symbol=>String/Regexp pairs: {:username => 'bob', :email => /@gmail\.com$/}. All must match.
-    #
-    #  :match => A "catch-all" Regex that will be matched against the entire request string
-    # 
-    # The last argument may be a block, which will be called everytime this Dam is hit.
-    # The block will be run in the context of the Request and will have access to the above options as methods.
-    # This can be used for reporting purposes, or you may do further checks on the hit to see if it's really
-    # a match. If not, "throw :skip" to ignore it.
+    # Name should be a unique symbol. Matchers is an options Hash. The callback will be evauluated within
+    # the context of a Beaver::Request.
     def initialize(name, matchers, &callback)
       @name = name
       @callback = callback
@@ -31,11 +32,14 @@ module Beaver
       set_matchers(matchers)
     end
 
+    # Returns an array of IP address that hit this Dam.
     def ips
       @ips ||= @hits.map(&:ip).uniq
     end
 
+    # Returns true if the given Request hits this Dam, false if not.
     def matches?(request)
+      return false if request.final?
       return false unless @match_path_s.nil? or @match_path_s == request.path
       return false unless @match_path_r.nil? or @match_path_r =~ request.path
       return false unless @match_method_s.nil? or @match_method_s == request.method
@@ -51,6 +55,7 @@ module Beaver
 
     private
 
+    # Recursively compares to Hashes. If all of Hash A is in Hash B, they match.
     def matching_hashes?(a,b)
       intersecting_keys = a.keys & b.keys
       if intersecting_keys.any?
@@ -73,6 +78,7 @@ module Beaver
       end
     end
 
+    # Parses and checks the validity of the matching options passed to the Dam.
     def set_matchers(matchers)
       case matchers[:path].class.name
         when String.name then @match_path_s = matchers[:path]
