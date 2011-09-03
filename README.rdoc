@@ -11,7 +11,8 @@ Beaver is *not* intended as a replacement for Google Analytics, as it is trying 
 Rails logs contain some great information, but I've never found a good tool for using them programatically (except for speed analyzers).
 Hopefully Beaver can fill that niche for you.
 
-Read the full documentation at http://jordanhollinger.com/docs/beaver/.
+Read the full documentation at http://jordanhollinger.com/docs/beaver/. The Beaver::Dam and Beaver::Request classes
+are probably what you're after.
 
 == 0 Installation
 Beaver is currently experimental, and as such is not published to rubygems.org. To install, download the tar, then

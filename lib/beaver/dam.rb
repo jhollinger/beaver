@@ -11,6 +11,10 @@ module Beaver
   # 
   #  :ip => String for exact match, or Regex
   # 
+  #  :longer_than => Fixnum n. Matches any request which took longer than n milliseconds to complete.
+  # 
+  #  :shorter_than => Fixnum n. Matches any request which took less than n milliseconds to complete.
+  # 
   #  :params_str => A regular expressing matching the Parameters string
   # 
   #  :params => A Hash of Symbol=>String/Regexp pairs: {:username => 'bob', :email => /@gmail\.com$/}. All must match.
@@ -42,6 +46,8 @@ module Beaver
       return false if request.final?
       return false unless @match_path_s.nil? or @match_path_s == request.path
       return false unless @match_path_r.nil? or @match_path_r =~ request.path
+      return false unless @match_longer.nil? or @match_longer < request.ms
+      return false unless @match_shorter.nil? or @match_shorter > request.ms
       return false unless @match_method_s.nil? or @match_method_s == request.method
       return false unless @match_method_a.nil? or @match_method_a.include? request.method
       return false unless @match_status.nil? or @match_status === request.status
@@ -102,6 +108,16 @@ module Beaver
         when Regexp.name then @match_status_r = matchers[:ip]
         else raise ArgumentError, "IP must be either a String or a Regexp (it's a #{matchers[:ip].class.name})"
       end if matchers[:ip]
+
+      case matchers[:longer_than].class.name
+        when Fixnum.name then @match_longer = matchers[:longer_than]
+        else raise ArgumentError, "longer_than must be either a Fixnum (it's a #{matchers[:longer_than].class.name})"
+      end if matchers[:longer_than]
+
+      case matchers[:shorter_than].class.name
+        when Fixnum.name then @match_shorter = matchers[:shorter_than]
+        else raise ArgumentError, "shorter_than must be either a Fixnum (it's a #{matchers[:shorter_than].class.name})"
+      end if matchers[:shorter_than]
 
       case matchers[:params_str].class.name
         when Regexp.name then @match_params_str = matchers[:params_str]

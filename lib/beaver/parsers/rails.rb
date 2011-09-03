@@ -10,6 +10,7 @@ module Beaver
       REGEX_PATH = /^Started \w{3,4} "([^"]+)"/
       REGEX_PARAMS_STR = /^  Parameters: ({.+})$/
       REGEX_IP = /" for (\d+[\d.]+) at /
+      REGEX_MS = / in (\d+)ms/
 
       # Returns true if the given lines look like a Rails request
       def self.match?(lines)
@@ -61,6 +62,12 @@ module Beaver
       def parse_ip
         m = REGEX_IP.match(@lines)
         m ? m.captures.first : BLANK_STR
+      end
+
+      # Parses and returns the number of milliseconds it took for the request to complete
+      def parse_ms
+        m = REGEX_MS.match(@lines)
+        m ? m.captures.first.to_i : 0
       end
     end
   end

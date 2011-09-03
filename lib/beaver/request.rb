@@ -67,6 +67,11 @@ module Beaver
       @ip ||= parse_ip
     end
 
+    # Returns the number of milliseconds it took for the request to complete
+    def ms
+      @ms ||= parse_ms
+    end
+
     # When called inside of a Beaver::Dam#hit block, this Request will *not* be matched.
     def skip!
       throw :skip
@@ -117,6 +122,11 @@ module Beaver
     # Parses and returns the request IP address
     def parse_ip
       BLANK_STR
+    end
+
+    # Parses and returns the number of milliseconds it took for the request to complete
+    def parse_ms
+      0
     end
   end
 

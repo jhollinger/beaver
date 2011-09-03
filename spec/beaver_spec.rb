@@ -72,6 +72,18 @@ describe Beaver do
     dam.hits.first.params.should == {:hi => "Hello", :boo => "Boo", :sub => {1 => 5, :eight => 8, 2=> 3, 7=>10}, :end => "The End", :a => ["1", "2", "3"], :"another end"=>"The End 2"}
   end
 
+  it "should parse the response time" do
+    dam = @beaver.hit :hash, :path => '/big_form', :method => :post
+    @beaver.filter
+    dam.hits.first.ms.should == 26
+  end
+
+  it "should find requests based on the response time" do
+    dam = @beaver.hit :hash, :longer_than => 26, :shorter_than => 28
+    @beaver.filter
+    dam.hits.size.should == 1
+  end
+
   it "should match against the entire request" do
     dam = @beaver.hit :db_hits, :match => /ActiveRecord: \d/
     @beaver.filter
