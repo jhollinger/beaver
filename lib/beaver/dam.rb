@@ -1,5 +1,6 @@
 module Beaver
-  # A Dam "traps" certain Requests, using the following matching options:
+  # A Dam "traps" certain Requests, using one or more matching options. A request must meet *all* of the 
+  # matching options specified.
   # 
   # Matchers:
   #
