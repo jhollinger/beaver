@@ -98,7 +98,6 @@ Okay.
 == TODO
 * Improve conversion of request parameters String into Hash
 * Add support for Apache/Nginx/Rack::CommonLogger
-* Add support for parsing and matching based on request datetime
 
 == 4 License
 Copyright 2011 Jordan Hollinger

@@ -1,3 +1,5 @@
+require 'time'
+
 module Beaver
   # Represents a single request from the logs.
   class Request
@@ -72,6 +74,11 @@ module Beaver
       @ms ||= parse_ms
     end
 
+    # Returns the time at which the request was made
+    def time
+      @time ||= parse_time
+    end
+
     # When called inside of a Beaver::Dam#hit block, this Request will *not* be matched.
     def skip!
       throw :skip
@@ -127,6 +134,11 @@ module Beaver
     # Parses and returns the number of milliseconds it took for the request to complete
     def parse_ms
       0
+    end
+
+    # Parses and returns the time at which the request was made
+    def parse_time
+      nil
     end
   end
 

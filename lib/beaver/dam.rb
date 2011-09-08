@@ -16,6 +16,12 @@ module Beaver
   # 
   #  :shorter_than => Fixnum n. Matches any request which took less than n milliseconds to complete.
   # 
+  #  :before => Date or Time for which the request must have ocurred before
+  # 
+  #  :after => Date or Time for which the request must have ocurred after
+  # 
+  #  :on => Date - the request must have ocurred on this date
+  # 
   #  :params_str => A regular expressing matching the Parameters string
   # 
   #  :params => A Hash of Symbol=>String/Regexp pairs: {:username => 'bob', :email => /@gmail\.com$/}. All must match.
@@ -54,6 +60,9 @@ module Beaver
       return false unless @match_status.nil? or @match_status === request.status
       return false unless @match_ip_s.nil? or @match_ip_s == request.ip
       return false unless @match_ip_r.nil? or @match_ip_r =~ request.ip
+      return false unless @match_before.nil? or @match_before > request.time
+      return false unless @match_after.nil? or @match_after < request.time
+      return false unless @match_on.nil? or (@match_on.year == request.time.year and @match_on.month == request.time.month and @match_on.day == request.time.day)
       return false unless @match_params_str.nil? or @match_params_str =~ request.params_str
       return false unless @match_r.nil? or @match_r =~ request.to_s
       return false unless @match_params.nil? or matching_hashes?(@match_params, request.params)
@@ -90,35 +99,52 @@ module Beaver
       case matchers[:path].class.name
         when String.name then @match_path_s = matchers[:path]
         when Regexp.name then @match_path_r = matchers[:path]
-        else raise ArgumentError, "Path must be either a String or a Regexp (it's a #{matchers[:path].class.name})"
+        else raise ArgumentError, "Path must be a String or a Regexp (it's a #{matchers[:path].class.name})"
       end if matchers[:path]
 
       case matchers[:method].class.name
         when Symbol.name then @match_method_s = matchers[:method]
         when Array.name then @match_method_a = matchers[:method]
-        else raise ArgumentError, "Method must be either a Symbol or an Array (it's a #{matchers[:method].class.name})"
+        else raise ArgumentError, "Method must be a Symbol or an Array (it's a #{matchers[:method].class.name})"
       end if matchers[:method]
 
       case matchers[:status].class.name
         when Fixnum.name, Range.name then @match_status = matchers[:status]
-        else raise ArgumentError, "Status must be either a Fixnum or a Range (it's a #{matchers[:status].class.name})"
+        else raise ArgumentError, "Status must be a Fixnum or a Range (it's a #{matchers[:status].class.name})"
       end if matchers[:status]
 
       case matchers[:ip].class.name
         when String.name then @match_status_s = matchers[:ip]
         when Regexp.name then @match_status_r = matchers[:ip]
-        else raise ArgumentError, "IP must be either a String or a Regexp (it's a #{matchers[:ip].class.name})"
+        else raise ArgumentError, "IP must be a String or a Regexp (it's a #{matchers[:ip].class.name})"
       end if matchers[:ip]
 
       case matchers[:longer_than].class.name
         when Fixnum.name then @match_longer = matchers[:longer_than]
-        else raise ArgumentError, "longer_than must be either a Fixnum (it's a #{matchers[:longer_than].class.name})"
+        else raise ArgumentError, "longer_than must be a Fixnum (it's a #{matchers[:longer_than].class.name})"
       end if matchers[:longer_than]
 
       case matchers[:shorter_than].class.name
         when Fixnum.name then @match_shorter = matchers[:shorter_than]
-        else raise ArgumentError, "shorter_than must be either a Fixnum (it's a #{matchers[:shorter_than].class.name})"
+        else raise ArgumentError, "shorter_than must be a Fixnum (it's a #{matchers[:shorter_than].class.name})"
       end if matchers[:shorter_than]
+
+      case matchers[:before].class.name
+        when Time.name then @match_before = matchers[:before]
+        when Date.name then @match_before = Time.new(matchers[:before].year, matchers[:before].month, matchers[:before].day)
+        else raise ArgumentError, "before must be a Date or Time (it's a #{matchers[:before].class.name})"
+      end if matchers[:before]
+
+      case matchers[:after].class.name
+        when Time.name then @match_after = matchers[:after]
+        when Date.name then @match_after = Time.new(matchers[:after].year, matchers[:after].month, matchers[:after].day)
+        else raise ArgumentError, "after must be a Date or Time (it's a #{matchers[:after].class.name})"
+      end if matchers[:after]
+
+      case matchers[:on].class.name
+        when Date.name then @match_on = matchers[:on]
+        else raise ArgumentError, "on must be a Date (it's a #{matchers[:on].class.name})"
+      end if matchers[:on]
 
       case matchers[:params_str].class.name
         when Regexp.name then @match_params_str = matchers[:params_str]
@@ -127,7 +153,7 @@ module Beaver
 
       case matchers[:params].class.name
         when Hash.name then @match_params = matchers[:params]
-        else raise ArgumentError, "Params must be either a String or a Regexp (it's a #{matchers[:params].class.name})"
+        else raise ArgumentError, "Params must be a String or a Regexp (it's a #{matchers[:params].class.name})"
       end if matchers[:params]
 
       case matchers[:match].class.name

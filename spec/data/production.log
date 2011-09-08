@@ -1,11 +1,11 @@
-Started GET "/widgets" for 216.84.130.30 at 2011-08-30 10:07:27 -0400
+Started GET "/widgets" for 216.84.130.30 at 2011-01-30 10:07:27 -0400
   Processing by WidgetsController#index as 
 Redirected to http://example.com/widgets
 Rendered widgets/index.html.erb within layouts/application (5.5ms)
 Completed 200 OK in 7ms (Views: 6.2ms | ActiveRecord: 6.5ms)
 
 
-Started POST "/widgets" for 216.84.130.31 at 2011-08-30 10:07:40 -0400
+Started POST "/widgets" for 216.84.130.31 at 2011-05-30 10:07:40 -0400
   Processing by WidgetsController#create as HTML
   Parameters: {"utf8"=>"✓", "authenticity_token"=>"PFO2RnDpeXWu6vvTQcJlWoB8jCuTqa8mpgLhLEXQohM=", "name"=>"Three-toed sock", "price"=>"10.00"}
 Redirected to http://example.com/widgets/5

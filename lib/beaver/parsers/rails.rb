@@ -11,6 +11,7 @@ module Beaver
       REGEX_PARAMS_STR = /^  Parameters: ({.+})$/
       REGEX_IP = /" for (\d+[\d.]+) at /
       REGEX_MS = / in (\d+)ms/
+      REGEX_TIME = / at ([0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2} (-|\+)[0-9]{4})$/
 
       # Returns true if the given lines look like a Rails request
       def self.match?(lines)
@@ -68,6 +69,12 @@ module Beaver
       def parse_ms
         m = REGEX_MS.match(@lines)
         m ? m.captures.first.to_i : 0
+      end
+
+      # Parses and returns the time at which the request was made
+      def parse_time
+        m = REGEX_TIME.match(@lines)
+        m ? Time.parse(m.captures.first) : nil
       end
     end
   end

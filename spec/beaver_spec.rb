@@ -84,6 +84,30 @@ describe Beaver do
     dam.hits.size.should == 1
   end
 
+  it "should parse the request time" do
+    dam = @beaver.hit :times, :method => :put
+    @beaver.filter
+    dam.hits.first.time.should == Time.new(2011, 8, 30, 10, 7, 40, '-04:00')
+  end
+
+  it "should match before the request time" do
+    dam = @beaver.hit :times, :before => Date.new(2011, 8, 1)
+    @beaver.filter
+    dam.hits.size.should == 2
+  end
+
+  it "should match after the request time" do
+    dam = @beaver.hit :times, :after => Time.new(2011, 8, 1, 0, 0, 0)
+    @beaver.filter
+    dam.hits.size.should == 2
+  end
+
+  it "should match on the request time" do
+    dam = @beaver.hit :times, :on => Date.new(2011, 8, 30)
+    @beaver.filter
+    dam.hits.size.should == 2
+  end
+
   it "should match against the entire request" do
     dam = @beaver.hit :db_hits, :match => /ActiveRecord: \d/
     @beaver.filter
