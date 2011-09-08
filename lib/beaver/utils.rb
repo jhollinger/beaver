@@ -70,12 +70,18 @@ module Beaver
                 state = :val_array_end
             end
           when ESCAPE
-            state = :escape if state == :val
+            if state == :val
+              state = :escape
+              next
+            end
         end
 
         case state
-          when :key, :val, :val_array, :escape
+          when :key, :val, :val_array
             s << c
+          when :escape
+            s << c
+            state = :val
           when :val_array_end
             s << c << "\n"
             state = :pre_key
