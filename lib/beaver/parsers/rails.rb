@@ -1,5 +1,6 @@
 module Beaver
   module Parsers
+    # This appears to work with Rails 3 logs
     class Rails < Request
       # Tell the Request class to use this parser to parse logs
       Request << self
@@ -11,7 +12,8 @@ module Beaver
       REGEX_PARAMS_STR = /^  Parameters: (\{.+\})$/
       REGEX_IP = /" for (\d+[\d.]+) at /
       REGEX_MS = / in (\d+)ms/
-      REGEX_TIME = / at ([0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2} (-|\+)[0-9]{4})$/
+      # Depending on the version of Rails, the time format may be wildly different
+      REGEX_TIME = / at ([a-z0-9:\+\- ]+)$/i
 
       # Returns true if the given lines look like a Rails request
       def self.match?(lines)
