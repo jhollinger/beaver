@@ -53,7 +53,7 @@ module Beaver
         end
       end
       @sums.each do |dam_name, callback|
-        @dams[dam_name].instance_eval(&callback)
+        @dams[dam_name].instance_eval(&callback) if @dams[dam_name].hits.any?
       end
     end
 
