@@ -28,7 +28,7 @@ module Beaver
             case state
               when :pre_key
                 s << (SPACE * indent)
-                s << ':' if str[i] =~ LETTER_REGEX
+                s << COLIN if str[i,1] =~ LETTER_REGEX
                 state = :key
                 next
               when :key
