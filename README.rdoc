@@ -9,7 +9,7 @@ Beaver is a light DSL for parsing Rails production logs back into usable data. I
 
 Beaver is *not* intended as a replacement for Google Analytics, as it is trying to answer some differents kinds of questions.
 Rails logs contain some great information, but I've never found a good tool for using them programatically (except for speed analyzers).
-Hopefully Beaver can fill that niche for you.
+Hopefully Beaver can fill that niche for you. Personally I find it quite useful with Logwatch.
 
 Read the full documentation at http://jordanhollinger.com/docs/beaver/. The Beaver::Dam and Beaver::Request classes
 are probably what you're after.
@@ -24,76 +24,72 @@ Beaver is currently experimental, and as such is not published to rubygems.org. 
 == 1 Use the command-line Beaver
 Write your beaver file:
 
-  # Log all the failed logins
   hit :failed_login, :method => :post, :path => '/login', :status => 401
 
-  # Report on each widget that was created
   hit :new_widgets, :path => '/widgets', :method => :post, :status => 302 do
     puts "A Widget named #{params[:widget][:name]} was created!"
   end
 
-  # Log all POSTs which resulted in a 404 (broken forms?)
-  hit :broken_forms, :method => :post, :status => 404 do
-    puts "Someone got a 404 posting to #{path}, passing #{params_str}"
-  end
-
-  # Report each time someone went anywhere under /help
   hit :help, :path => %r|^/help| do
     skip! if path == '/help/page_i_want_to_ignore'
     puts "#{ip} looked for help at #{path}"
   end
 
-  # Log all 500-level errors
   hit :server_error, :status => (500..503)
 
-  # Report on the failed logins en-mass
   dam :failed_login do
-    puts "There were #{hits.size} failed logins from #{ips.size} IP addresses"
+    puts "Failed logins:"
+    hits.group_by { |h| h.params[:username] } do |user, fails|
+      puts " #{user}"
+      fails.each do |hit|
+        puts "  from #{hit.ip} at #{hit.time.to_s}"
+      end
+    end
   end
 
-  # Summary report of server errors
   dam :server_errors do
-    puts "There were #{hits.select { |h| h.status == 500 }.size} 500 errors"
-    puts "There were #{hits.select { |h| h.status == 501 }.size} 501 errors"
+    puts "Server errors:"
+    hits.group_by(&:status) do |status, errors|
+      puts " There were #{errors.size} #{status} errors"
+    end
   end
 
 Run ''beaver'' from the command line, passing in your beaver file and some logs:
 
   beaver my_beaver_file.rb /var/www/rails-app/log/production.log*
 
-== 2 Use your own Beaver
+== 2 Use with Logwatch
+This assumes you're using logrotate to switch out your Rails logs everyday.
 
+Add an executable Beaver file for your Rails app at /etc/logwatch/scripts/services/your_app.
+  #!/usr/bin/env ruby
   require 'rubygems'
   require 'beaver'
 
-  Beaver.parse '/var/www/rails-app/log/production.log*' do
-    # Same as Basic usage
+  # Logs from the last day or so
+  logs = ['/var/www/rails-app/log/production.log',
+          '/var/www/rails-app/log/production.log.1']
+  Beaver.parse logs do
+    # Same as example above
     hit :failed_login, :method => :post, :path => '/login', :status => 401
     ...
   end
 
-== 3 Forget this cute DSL crap, I just want a library
-Okay.
+Make sure it's executable.
+  chmod 755 /etc/logwatch/scripts/services/your_app
 
-  require 'rubygems'
-  require 'beaver'
+Add a logwatch config file for your new service at /etc/logwatch/conf/services/your_app.conf.
+  Title = "Your Rails App"
+  LogFile = NONE
 
-  beaver = Beaver.new('/var/www/rails-app/log/production.log*')
+== 3 Your Rails app should return appropriate HTTP statuses
+Rails does a lot of great things for us, but one thing still up to us are
+our HTTP status codes. For example, your failed logins are probably returning
+200 when they should arguably be returning 400 or 401.
 
-  # Parse the logs into Beaver::Request objects.
-  # They are available through beaver.requests, which is pretty useful by itself.
-  beaver.parse
+  render :action => :login, :status => 401
 
-  # Create a Beaver::Dam for certain requests to hit
-  beaver.hit :broken_forms, :method => :post, :status => 404
-
-  # Optionally, handle the entire batch of Beaver::Requests for a Beaver::Dam
-  beaver.dam :broken_forms do
-    puts "#{hits.size} broken forms"
-  end
-
-  # Now filter the Requests through the Dams and callbacks you've just defined
-  beaver.filter
+See, it's easy. And very useful to Beaver.
 
 == TODO
 * Improve conversion of request parameters String into Hash
