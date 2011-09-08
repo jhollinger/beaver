@@ -8,7 +8,7 @@ module Beaver
       REGEX_METHOD_OVERRIDE = /"_method"=>"([A-Z]+)"/i
       REGEX_COMPLETED = /^Completed (\d+)/
       REGEX_PATH = /^Started \w{3,4} "([^"]+)"/
-      REGEX_PARAMS_STR = /^  Parameters: ({.+})$/
+      REGEX_PARAMS_STR = /^  Parameters: (\{.+\})$/
       REGEX_IP = /" for (\d+[\d.]+) at /
       REGEX_MS = / in (\d+)ms/
       REGEX_TIME = / at ([0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2} (-|\+)[0-9]{4})$/
