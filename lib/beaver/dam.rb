@@ -129,22 +129,33 @@ module Beaver
         else raise ArgumentError, "shorter_than must be a Fixnum (it's a #{matchers[:shorter_than].class.name})"
       end if matchers[:shorter_than]
 
-      case matchers[:before].class.name
-        when Time.name then @match_before = matchers[:before]
-        when Date.name then @match_before = Time.new(matchers[:before].year, matchers[:before].month, matchers[:before].day)
-        else raise ArgumentError, "before must be a Date or Time (it's a #{matchers[:before].class.name})"
-      end if matchers[:before]
+      if matchers[:before]
+        @match_before = if matchers[:before].is_a? Time
+          matchers[:before]
+        elsif matchers[:before].is_a? Date
+          Utils::NormalizedTime.new(matchers[:before].year, matchers[:before].month, matchers[:before].day)
+        else
+          raise ArgumentError, "before must be a Date or Time (it's a #{matchers[:before].class.name})"
+        end
+      end
 
-      case matchers[:after].class.name
-        when Time.name then @match_after = matchers[:after]
-        when Date.name then @match_after = Time.new(matchers[:after].year, matchers[:after].month, matchers[:after].day)
-        else raise ArgumentError, "after must be a Date or Time (it's a #{matchers[:after].class.name})"
-      end if matchers[:after]
+      if matchers[:after]
+        @match_after = if matchers[:after].is_a? Time
+          matchers[:after]
+        elsif matchers[:after].is_a? Date
+          Utils::NormalizedTime.new(matchers[:after].year, matchers[:after].month, matchers[:after].day)
+        else
+          raise ArgumentError, "after must be a Date or Time (it's a #{matchers[:after].class.name})"
+        end
+      end
 
-      case matchers[:on].class.name
-        when Date.name then @match_on = matchers[:on]
-        else raise ArgumentError, "on must be a Date (it's a #{matchers[:on].class.name})"
-      end if matchers[:on]
+      if matchers[:on]
+        if matchers[:on].is_a? Date
+          @match_on = matchers[:on]
+        else
+          raise ArgumentError, "on must be a Date (it's a #{matchers[:on].class.name})"
+        end
+      end
 
       case matchers[:params_str].class.name
         when Regexp.name then @match_params_str = matchers[:params_str]

@@ -62,7 +62,7 @@ module Beaver
       @files.each do |file|
         zipped = file =~ /\.gz\Z/i
         next if zipped and not defined? Zlib
-        File.open(file, 'r') do |f|
+        File.open(file, 'r:UTF-8') do |f|
           handle = (zipped ? Zlib::GzipReader.new(f) : f)
           request = nil
           handle.each_line do |line|

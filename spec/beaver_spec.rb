@@ -87,7 +87,7 @@ describe Beaver do
   it "should parse the request time" do
     dam = @beaver.hit :times, :method => :put
     @beaver.filter
-    dam.hits.first.time.should == Time.new(2011, 8, 30, 10, 7, 40, '-04:00')
+    dam.hits.first.time.should == ::Beaver::Utils::NormalizedTime.new(2011, 8, 30, 10, 7, 40, '-04:00')
   end
 
   it "should match before the request time" do
@@ -97,7 +97,7 @@ describe Beaver do
   end
 
   it "should match after the request time" do
-    dam = @beaver.hit :times, :after => Time.new(2011, 8, 1, 0, 0, 0)
+    dam = @beaver.hit :times, :after => ::Beaver::Utils::NormalizedTime.new(2011, 8, 1, 0, 0, 0)
     @beaver.filter
     dam.hits.size.should == 2
   end

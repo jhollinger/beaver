@@ -1,4 +1,5 @@
 require 'yaml'
+require 'time'
 
 module Beaver
   module Utils
@@ -88,6 +89,20 @@ module Beaver
         end
       end
       YAML.load s
+    end
+
+    # Normalizes Time.new across Ruby 1.8 and 1.9
+    class NormalizedTime < ::Time
+      if RUBY_VERSION >= '1.9'
+        def self.new(*args)
+          super(*args)
+        end
+      else
+        def self.new(*args)
+          args.pop if args.last.is_a? String
+          local(*args)
+        end
+      end
     end
   end
 end
