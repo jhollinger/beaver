@@ -18,8 +18,10 @@ module Beaver
   class Beaver
     attr_reader :files, :dams, :requests
 
-    # Pass in globs or file paths
+    # Pass in globs or file paths. The final argument may be an options Hash.
+    # These options will be applied as matchers to all hits. See Beaver::Dam for available options.
     def initialize(*args)
+      @global_matchers = args.last.is_a?(Hash) ? args.pop : {}
       @files = args.map { |a| Dir.glob(a) }
       @files.flatten!
       @requests, @dams, @sums = [], {}, {}
@@ -29,6 +31,7 @@ module Beaver
     # See Beaver::Dam for available options.
     def hit(dam_name, matchers={}, &callback)
       raise ArgumentError, "A dam named #{dam_name} already exists" if @dams.has_key? dam_name
+      matchers = @global_matchers.merge matchers
       @dams[dam_name] = Dam.new(dam_name, matchers, &callback)
     end
 

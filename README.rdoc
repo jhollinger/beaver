@@ -69,7 +69,8 @@ Add an executable Beaver file for your Rails app at /etc/logwatch/scripts/servic
   # Logs from the last day or so
   logs = ['/var/www/rails-app/log/production.log',
           '/var/www/rails-app/log/production.log.1']
-  Beaver.parse logs do
+  # Parse the logs, but only include requests from yesterday
+  Beaver.parse logs, :on => Date.today-1 do
     # Same as example above
     hit :failed_login, :method => :post, :path => '/login', :status => 401
     ...
