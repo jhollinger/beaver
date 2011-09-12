@@ -31,7 +31,6 @@ if ARGV.size < 2
 end
 
 beaver_file = File.open(ARGV.shift, &:read)
-
-Beaver.parse *ARGV, options do
+Beaver.parse *[ARGV, options].flatten do
   eval beaver_file
 end
