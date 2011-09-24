@@ -7,21 +7,19 @@ Beaver is a light DSL for parsing Rails production logs back into usable data. I
 * How many Widgets were created yesterday, and with what data?
 * Did anyone submit a form with the words "kill them all"? Yikes.
 
-Beaver is *not* intended as a replacement for Google Analytics, as it is trying to answer some differents kinds of questions.
+Beaver is *not* intended as a replacement for something like Google Analytics, as it is trying to answer some differents kinds of questions.
 Rails logs contain some great information, but I've never found a good tool for using them programatically (except for speed analyzers).
 Hopefully Beaver can fill that niche for you. Personally I find it quite useful with Logwatch.
 
 Read the full documentation at http://jordanhollinger.com/docs/beaver/. The Beaver::Dam and Beaver::Request classes
 are probably what you're after.
 
-== 0 Installation
-Beaver is currently experimental, and as such is not published to rubygems.org. To install, download the tar, then
-  tar -xzf jhollinger-beaver-whatever-junk.tar.gz
-  cd jhollinger-beaver-whatever-junk
-  gem build beaver.gemspec
-  [sudo] gem install beaver-version.gem
+== Installation
+Beaver is still somewhat experimental, but it has proved stable and robust enough for a non-beta release.
 
-== 1 Use the command-line Beaver
+  [sudo] gem install beaver
+
+== Use the command-line Beaver
 Write your beaver file:
 
   hit :failed_login, :method => :post, :path => '/login', :status => 401
@@ -58,34 +56,40 @@ Run ''beaver'' from the command line, passing in your beaver file and some logs:
 
   beaver my_beaver_file.rb /var/www/rails-app/log/production.log*
 
-== 2 Use with Logwatch
-This assumes you're using logrotate to switch out your Rails logs everyday.
+== Example use with Logwatch
+This assumes 1) you're rotating your Rails logs daily and 2) you're running logwatch daily.
 
-Add an executable Beaver file for your Rails app at /etc/logwatch/scripts/services/your_app.
-  #!/usr/bin/env ruby
+Check your beaver DSL file into your Rails app, maybe under /script.
+
+Add a logwatch config file for your new service at /etc/logwatch/conf/services/your_app.conf:
+
+  Title = "Your Rails App"
+  LogFile = NONE
+
+In /etc/logwatch/scripts/services/your_app:
+
+  beaver /var/www/your_app/script/beaver.rb --yesterday /var/www/your_app/log/production.log{,.1}
+
+== Use your own Beaver
+Use Beaver like a library:
+
   require 'rubygems'
   require 'beaver'
 
   # Logs from the last day or so
   logs = ['/var/www/rails-app/log/production.log',
           '/var/www/rails-app/log/production.log.1']
+
   # Parse the logs, but only include requests from yesterday
   Beaver.parse logs, :on => Date.today-1 do
-    # Same as example above
+    # Same DSL as above
     hit :failed_login, :method => :post, :path => '/login', :status => 401
     ...
   end
 
-Make sure it's executable.
-  chmod 755 /etc/logwatch/scripts/services/your_app
-
-Add a logwatch config file for your new service at /etc/logwatch/conf/services/your_app.conf.
-  Title = "Your Rails App"
-  LogFile = NONE
-
-== 3 Your Rails app should return appropriate HTTP statuses
-Rails does a lot of great things for us, but one thing still up to us are
-our HTTP status codes. For example, your failed logins are probably returning
+== Your Rails app should return appropriate HTTP statuses
+Rails does a lot of great things for us, but one thing largely up to us are
+HTTP status codes. For example, your failed logins are probably returning
 200 when they should arguably be returning 400 or 401.
 
   render :action => :login, :status => 401
@@ -93,10 +97,9 @@ our HTTP status codes. For example, your failed logins are probably returning
 See, it's easy. And very useful to Beaver.
 
 == TODO
-* Improve conversion of request parameters String into Hash
 * Add support for Apache/Nginx/Rack::CommonLogger
 
-== 4 License
+== License
 Copyright 2011 Jordan Hollinger
 
 Licensed under the Apache License
