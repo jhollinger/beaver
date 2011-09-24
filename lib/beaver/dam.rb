@@ -32,7 +32,12 @@ module Beaver
   # The block will be run in the context of the Request object. This can be used for 
   # further checks or for reporting purposes.
   class Dam
-    attr_reader :name, :callback, :hits
+    # The symbol name of this Beaver::Dam
+    attr_reader :name
+    # An optional callback when a Beaver::Request hits this Dam
+    attr_reader :callback
+    # An array of Beaver::Request objects that have hit this Dam
+    attr_reader :hits
 
     # Name should be a unique symbol. Matchers is an options Hash. The callback will be evauluated within
     # the context of a Beaver::Request.

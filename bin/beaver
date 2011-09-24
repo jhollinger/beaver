@@ -4,8 +4,11 @@ require 'optparse'
 require 'rubygems'
 require 'beaver'
 
+#
 # This application was installed by RubyGems as part of the 'beaver' gem.
+#
 
+# Parse a string from the command-line into a Date object
 def parse_date(date)
   case date
     when /^[0-9]{4}-[0-9]{2}-[0-9]{2}$/ then Date.parse(date)

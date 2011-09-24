@@ -7,7 +7,7 @@ require File.dirname(__FILE__) + '/../lib/beaver/dam'
 require File.dirname(__FILE__) + '/../lib/beaver/request'
 require File.dirname(__FILE__) + '/../lib/beaver/parsers/rails'
 
-Rspec.configure do |c|
+RSpec.configure do |c|
   c.mock_with :rspec
 end
 

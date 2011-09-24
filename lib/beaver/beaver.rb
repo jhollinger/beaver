@@ -15,8 +15,15 @@ module Beaver
     Beaver.new(*args)
   end
 
+  # The Beaver class, which keeps track of the files you're parsing, the Beaver::Dam objects you've defined,
+  # and parses and stores the matching Beaver::Request objects.
   class Beaver
-    attr_reader :files, :dams, :requests
+    # The files to parse
+    attr_reader :files
+    # The Beaver::Dam objects you're defined
+    attr_reader :dams
+    # The Beaver::Request objects matched in the given files
+    attr_reader :requests
 
     # Pass in globs or file paths. The final argument may be an options Hash.
     # These options will be applied as matchers to all hits. See Beaver::Dam for available options.

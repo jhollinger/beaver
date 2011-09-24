@@ -2,6 +2,7 @@ require 'yaml'
 require 'time'
 
 module Beaver
+  # Sundry utility methods and classes for use by Beaver
   module Utils
     LBRACE, RBRACE = '{', '}'
     LBRACKET, RBRACKET = '[', ']'
@@ -91,13 +92,11 @@ module Beaver
       YAML.load s
     end
 
-    # Normalizes Time.new across Ruby 1.8 and 1.9
+    # Normalizes Time.new across Ruby 1.8 and 1.9.
+    # Accepts the same arguments as Time.
     class NormalizedTime < ::Time
-      if RUBY_VERSION >= '1.9'
-        def self.new(*args)
-          super(*args)
-        end
-      else
+      if RUBY_VERSION < '1.9'
+        # Returns a new NormalizedTime object.
         def self.new(*args)
           args.pop if args.last.is_a? String
           local(*args)
