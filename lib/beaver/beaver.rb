@@ -1,6 +1,9 @@
 # Not specifically a performance analyzer (like https://github.com/wvanbergen/request-log-analyzer/wiki)
 # Rather, a DSL for finding out how people are using your Rails app (which could include performance).
 module Beaver
+  MAJOR_VERSION, MINOR_VERSION, TINY_VERSION, PRE_VERSION = 0, 0, 1, nil
+  VERSION = [MAJOR_VERSION, MINOR_VERSION, TINY_VERSION, PRE_VERSION].compact.join '.'
+
   # Alias to creating a new Beaver, parsing the files, and filtering them
   def self.parse(*args, &blk)
     raise ArgumentError, 'You must pass a block to Beaver#parse' unless block_given?

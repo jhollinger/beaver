@@ -25,6 +25,7 @@ o = OptionParser.new do |opts|
   opts.on('--before DATE', 'Only include log entries from before the given date (yyyy-mm-dd or -n days)') { |d| options[:before] = parse_date(d) }
   opts.on('--today', 'Alias to --on=-0') { options[:on] = Date.today }
   opts.on('--yesterday', 'Alias to --on=-1') { options[:on] = Date.today-1 }
+  opts.on('-v', '--version', 'Show version') { puts "beaver #{Beaver::VERSION}"; exit }
 end
 o.parse!
 
