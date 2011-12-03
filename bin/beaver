@@ -28,7 +28,7 @@ o = OptionParser.new do |opts|
   opts.on('--today', 'Alias to --on=-0') { options[:on] = Date.today }
   opts.on('--yesterday', 'Alias to --on=-1') { options[:on] = Date.today-1 }
   opts.on('--regex REGEX', 'A regex string to be matched against the entire request') { |r| options[:match] = Regexp.new(r) }
-  opts.on('--hit STR', 'Formatted string to print for each hit, e.g. "%{ip} hit %{path}"') { |hit| options[:hit] = hit }
+  opts.on('--print FORMAT', 'Formatted string to print for each hit, e.g. "%{ip} went to %{path} passing %{params[:email]}"') { |hit| options[:hit] = hit }
   opts.on('-v', '--version', 'Show version') { puts "beaver #{Beaver::VERSION}"; exit }
 end
 o.parse!
