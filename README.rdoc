@@ -73,15 +73,15 @@ Use the Beaver DSL in your own code:
     ...
   end
 
-== Use beaver like grep for Rails logs (DSL files are optional)
+== Use beaver like grep for Rails logs
 
-Pretty difficult to grep through a multi-line log format. But Beaver is up to it:
+Pretty difficult to grep through a multi-line log format and output each matching multi-line event. But Beaver is up to it:
 
   beaver --path="/widgets.*" --method=post,put /var/www/rails-app/log/production.log
 
-Or format the output:
+Or format the output to a single line:
 
-  beaver --path="/widgets.*" --method=post,put --print "%{ip} hit %{path} using %{method}" /var/www/rails-app/log/production.log
+  beaver --path="/widgets.*" --method=post,put /var/www/rails-app/log/production.log --print "%{ip} hit %{path} using %{method}"
 
 The command-line matchers are nearly identical to the DSL's. See more details with 'beaver --help'.
 
