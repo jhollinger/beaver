@@ -108,9 +108,6 @@ HTTP status codes. For example, your failed logins are probably returning
 
 See, it's easy. And very useful to Beaver.
 
-== TODO
-* Add support for Apache/Nginx/Rack::CommonLogger
-
 == License
 Copyright 2011 Jordan Hollinger
 
