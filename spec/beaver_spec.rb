@@ -60,6 +60,18 @@ describe Beaver do
     dam.ips.size.should == 2
   end
 
+  it "should find the HTML responses" do
+    dam = @beaver.hit :html, :format => :html
+    @beaver.filter
+    dam.hits.size.should == 3
+  end
+
+  it "should find the HTML and JSON responses" do
+    dam = @beaver.hit :html, :format => [:html, :json]
+    @beaver.filter
+    dam.hits.size.should == 3
+  end
+
   it "should find requests based on the params string" do
     dam = @beaver.hit :with_params_str, :params_str => /"hi"=>"Hello"/
     @beaver.filter

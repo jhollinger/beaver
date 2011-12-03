@@ -11,6 +11,7 @@ module Beaver
       REGEX_PATH = /^Started \w{3,4} "([^"]+)"/
       REGEX_PARAMS_STR = /^  Parameters: (\{.+\})$/
       REGEX_IP = /" for (\d+[\d.]+) at /
+      REGEX_FORMAT = /Processing by .+ as (\w+)$/
       REGEX_MS = / in (\d+)ms/
       # Depending on the version of Rails, the time format may be wildly different
       REGEX_TIME = / at ([a-z0-9:\+\- ]+)$/i
@@ -40,7 +41,7 @@ module Beaver
       def parse_method
         m = REGEX_METHOD_OVERRIDE.match(@lines)
         m = REGEX_METHOD.match(@lines) if m.nil?
-        m ? m.captures.first.downcase.to_sym : :method
+        m ? m.captures.first.downcase.to_sym : :unknown
       end
 
       # Parses and returns the response status
@@ -65,6 +66,12 @@ module Beaver
       def parse_ip
         m = REGEX_IP.match(@lines)
         m ? m.captures.first : BLANK_STR
+      end
+
+      # Parses and returns the respones format
+      def parse_format
+        m = REGEX_FORMAT.match(@lines)
+        m ? m.captures.first.to_s.downcase.to_sym : :unknown
       end
 
       # Parses and returns the number of milliseconds it took for the request to complete

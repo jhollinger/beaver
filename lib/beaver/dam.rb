@@ -11,6 +11,8 @@ module Beaver
   #  :status => A Fixnum like 404 or a Range like (500..503)
   # 
   #  :ip => String for exact match, or Regex
+  #
+  #  :format => A symbol or array of symbols of response formats like :html, :json
   # 
   #  :longer_than => Fixnum n. Matches any request which took longer than n milliseconds to complete.
   # 
@@ -65,6 +67,8 @@ module Beaver
       return false unless @match_status.nil? or @match_status === request.status
       return false unless @match_ip_s.nil? or @match_ip_s == request.ip
       return false unless @match_ip_r.nil? or @match_ip_r =~ request.ip
+      return false unless @match_format_s.nil? or @match_format_s == request.format
+      return false unless @match_format_a.nil? or @match_format_a.include? request.format
       return false unless @match_before.nil? or @match_before > request.time
       return false unless @match_after.nil? or @match_after < request.time
       return false unless @match_on.nil? or (@match_on.year == request.time.year and @match_on.month == request.time.month and @match_on.day == request.time.day)
@@ -108,8 +112,8 @@ module Beaver
       end if matchers[:path]
 
       case matchers[:method].class.name
-        when Symbol.name then @match_method_s = matchers[:method]
-        when Array.name then @match_method_a = matchers[:method]
+        when Symbol.name then @match_method_s = matchers[:method].to_s.downcase.to_sym
+        when Array.name then @match_method_a = matchers[:method].map { |m| m.to_s.downcase.to_sym }
         else raise ArgumentError, "Method must be a Symbol or an Array (it's a #{matchers[:method].class.name})"
       end if matchers[:method]
 
@@ -119,10 +123,16 @@ module Beaver
       end if matchers[:status]
 
       case matchers[:ip].class.name
-        when String.name then @match_status_s = matchers[:ip]
-        when Regexp.name then @match_status_r = matchers[:ip]
+        when String.name then @match_ip_s = matchers[:ip]
+        when Regexp.name then @match_ip_r = matchers[:ip]
         else raise ArgumentError, "IP must be a String or a Regexp (it's a #{matchers[:ip].class.name})"
       end if matchers[:ip]
+
+      case matchers[:format].class.name
+        when Symbol.name then @match_format_s = matchers[:format].to_s.downcase.to_sym
+        when Array.name then @match_format_a = matchers[:format].map { |f| f.to_s.downcase.to_sym }
+        else raise ArgumentError, "Format must be a Symbol or an Array (it's a #{matchers[:format].class.name})"
+      end if matchers[:format]
 
       case matchers[:longer_than].class.name
         when Fixnum.name then @match_longer = matchers[:longer_than]

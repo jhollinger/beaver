@@ -69,6 +69,11 @@ module Beaver
       @ip ||= parse_ip
     end
 
+    # Returns the responses format (html, json, etc)
+    def format
+      @format ||= parse_format
+    end
+
     # Returns the number of milliseconds it took for the request to complete
     def ms
       @ms ||= parse_ms
@@ -129,6 +134,11 @@ module Beaver
     # Parses and returns the request IP address
     def parse_ip
       BLANK_STR
+    end
+
+    # Parses and returns the respones format
+    def parse_format
+      :format
     end
 
     # Parses and returns the number of milliseconds it took for the request to complete

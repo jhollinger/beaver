@@ -21,6 +21,7 @@ o = OptionParser.new do |opts|
   opts.on('--status STATUS', 'HTTP status(es), e.g. 200 or 500..503') { |s| options[:status] = s =~ /(\.+)/ ? Range.new(*s.split($1).map(&:to_i)) : s.to_i }
   opts.on('--ip IP', 'IP address, string or regex') { |ip| options[:ip] = Regexp.new(ip) }
   opts.on('--params PARAMS', 'Request parameters string (a Ruby Hash), string or regex') { |params| options[:params_str] = Regexp.new(params, Regexp::IGNORECASE) }
+  opts.on('--format FORMAT', 'Response format(s), e.g. html or json,xml') { |f| options[:format] = f.split(',').map(&:to_sym) }
   opts.on('--longer-than MS', 'Minimum response time in ms') { |ms| options[:longer_than] = ms.to_i }
   opts.on('--shorter-than MS', 'Maximum response time in ms') { |ms| options[:shorter_than] = ms.to_i }
   opts.on('--on DATE', 'Only include log entries from the given date (yyyy-mm-dd or -n days)') { |d| options[:on] = parse_date(d) }
