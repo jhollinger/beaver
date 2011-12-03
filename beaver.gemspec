@@ -2,11 +2,11 @@
 
 Gem::Specification.new do |spec|
   spec.name = 'beaver'
-  spec.version = '0.0.1'
-  spec.summary = "Rails production log parser"
-  spec.description = "A simple DSL for helping you discover what people are doing with your Rails app"
+  spec.version = '0.1.0'
+  spec.summary = "Rails log parser"
+  spec.description = "A simple DSL and command-line tool for helping discover what people are up to with your Rails app"
   spec.authors = ['Jordan Hollinger']
-  spec.date = '2011-09-24'
+  spec.date = '2011-12-02'
   spec.email = 'jordan@jordanhollinger.com'
   spec.homepage = 'http://github.com/jhollinger/beaver'
 

@@ -36,7 +36,7 @@ module Beaver
 
     # Append a log line
     def <<(line)
-      @lines << line << $/
+      @lines << line
     end
 
     # Returns the request path

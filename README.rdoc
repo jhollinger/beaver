@@ -19,8 +19,8 @@ Beaver is still somewhat experimental, but it has proved stable and robust enoug
 
   [sudo] gem install beaver
 
-== Use the command-line Beaver
-Write your beaver file:
+== Run a DSL file with beaver
+Write your beaver DSL file:
 
   hit :failed_login, :method => :post, :path => '/login', :status => 401
 
@@ -56,6 +56,26 @@ Run ''beaver'' from the command line, passing in your beaver file and some logs:
 
   beaver my_beaver_file.rb /var/www/rails-app/log/production.log*
 
+== Use your own Beaver
+Use the Beaver DSL in your own code:
+
+  require 'rubygems'
+  require 'beaver'
+
+  # Logs from the last day or so
+  logs = ['/var/www/rails-app/log/production.log',
+          '/var/www/rails-app/log/production.log.1']
+
+  # Parse the logs, but only include requests from yesterday
+  Beaver.parse logs, :on => Date.today-1 do
+    hit :failed_login, :method => :post, :path => '/login', :status => 401
+    ...
+  end
+
+== Run beaver using the command-line only
+
+  beaver --path="/widgets.*" --method=post,put --hit "%{ip} hit %{path} using %{method}" /var/www/rails-app/log/production.log
+
 == Example use with Logwatch
 This assumes 1) you're rotating your Rails logs daily and 2) you're running logwatch daily.
 
@@ -69,23 +89,6 @@ Add a logwatch config file for your new service at /etc/logwatch/conf/services/y
 In /etc/logwatch/scripts/services/your_app:
 
   beaver /var/www/your_app/script/beaver.rb --yesterday /var/www/your_app/log/production.log{,.1}
-
-== Use your own Beaver
-Use Beaver like a library:
-
-  require 'rubygems'
-  require 'beaver'
-
-  # Logs from the last day or so
-  logs = ['/var/www/rails-app/log/production.log',
-          '/var/www/rails-app/log/production.log.1']
-
-  # Parse the logs, but only include requests from yesterday
-  Beaver.parse logs, :on => Date.today-1 do
-    # Same DSL as above
-    hit :failed_login, :method => :post, :path => '/login', :status => 401
-    ...
-  end
 
 == Your Rails app should return appropriate HTTP statuses
 Rails does a lot of great things for us, but one thing largely up to us are

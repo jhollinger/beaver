@@ -42,6 +42,18 @@ describe Beaver do
     dam.hits.size.should == 1
   end
 
+  it "should match the request status" do
+    dam = @beaver.hit :okay, :status => 200
+    @beaver.filter
+    dam.hits.size.should == 1
+  end
+
+  it "should match the request status range" do
+    dam = @beaver.hit :okay, :status => (200..302)
+    @beaver.filter
+    dam.hits.size.should == 4
+  end
+
   it "should capture all IP addresses" do
     dam = @beaver.hit :all
     @beaver.filter

@@ -15,12 +15,20 @@ end
 
 options = {}
 o = OptionParser.new do |opts|
-  opts.banner = 'Usage: beaver [options] dsl.rb [dsl2.rb...] /rails/production.log [/rails/production2.log...]'
+  opts.banner = 'Usage: beaver [options] [dsl.rb...] /rails/production.log...'
+  opts.on('--path PATH', 'URL path, string or regex') { |path| options[:path] = Regexp.new(path) }
+  opts.on('--method METHOD', 'HTTP request method(s), e.g. get or post,put') { |methods| options[:method] = methods.split(',').map { |m| m.downcase.to_sym } }
+  opts.on('--status STATUS', 'HTTP status(es), e.g. 200 or 500..503') { |s| options[:status] = s =~ /(\.+)/ ? Range.new(*s.split($1).map(&:to_i)) : s.to_i }
+  opts.on('--ip IP', 'IP address, string or regex') { |ip| options[:ip] = Regexp.new(ip) }
+  opts.on('--longer-than MS', 'Minimum response time in ms') { |ms| options[:longer_than] = ms.to_i }
+  opts.on('--shorter-than MS', 'Maximum response time in ms') { |ms| options[:shorter_than] = ms.to_i }
   opts.on('--on DATE', 'Only include log entries from the given date (yyyy-mm-dd or -n days)') { |d| options[:on] = parse_date(d) }
   opts.on('--after DATE', 'Only include log entries from after the given date (yyyy-mm-dd or -n days)') { |d| options[:after] = parse_date(d) }
   opts.on('--before DATE', 'Only include log entries from before the given date (yyyy-mm-dd or -n days)') { |d| options[:before] = parse_date(d) }
   opts.on('--today', 'Alias to --on=-0') { options[:on] = Date.today }
   opts.on('--yesterday', 'Alias to --on=-1') { options[:on] = Date.today-1 }
+  opts.on('--regex REGEX', 'A regex string to be matched against the entire request') { |r| options[:match] = Regexp.new(r) }
+  opts.on('--hit STR', 'Formatted string to print for each hit, e.g. "%{ip} hit %{path}"') { |hit| options[:hit] = hit }
   opts.on('-v', '--version', 'Show version') { puts "beaver #{Beaver::VERSION}"; exit }
 end
 o.parse!
@@ -28,15 +36,25 @@ o.parse!
 # Separate the beaver files and log files
 beaver_files, log_files = ARGV.uniq.partition { |a| a =~ /\.rb$/ }
 
-if beaver_files.empty? or log_files.empty?
+# There have to be log files
+if log_files.empty?
   puts o.banner
   exit 1
 end
 
-# Read in the beaver files
-beaver_files.map! { |b| File.open(b, &:read) }
+# Run logs through the DSL file(s)
+if beaver_files.any?
+  STDERR.puts "WARNING --hit is ignored when running Beaver DSL files" if options[:hit]
 
-# Parse them
-Beaver.parse *[log_files, options].flatten do
-  beaver_files.each { |b| eval b }
+  beaver_files.map! { |b| File.open(b, &:read) }
+  Beaver.parse *[log_files, options].flatten do
+    beaver_files.each { |b| eval b }
+  end
+# Run logs through the CLI options
+else
+  Beaver.parse *log_files do
+    hit :cli, options do
+      puts options[:hit] ? eval('"'+options[:hit].gsub(/%\{/, '#{')+'"') : to_s << $/
+    end
+  end
 end

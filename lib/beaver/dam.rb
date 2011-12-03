@@ -6,7 +6,7 @@ module Beaver
   #
   #  :path => String for exact match, or Regex
   #
-  #  :method => A Symbol of :get, :post, :update or :delete, or any array of any (reads the magic _method field if present)
+  #  :method => A Symbol of :get, :post, :put or :delete, or any array of any (reads the magic _method field if present)
   #
   #  :status => A Fixnum like 404 or a Range like (500..503)
   # 

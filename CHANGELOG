@@ -1,5 +1,6 @@
 ** RELEASE 0.1.0 (Pending) **
 
+* Ability to pass simple DSL options directly through the command-line, making DSL files optional
 * Ability to run multiple Beaver DSL files at once
 
 ** RELEASE 0.0.1 (09/24/2011) **
