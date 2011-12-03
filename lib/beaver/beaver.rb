@@ -47,7 +47,7 @@ module Beaver
 
     # Define a sumarry for a Dam
     def dam(name, &callback)
-      STDERR.puts "WARNING Overwriting existing dam '#{name}'" if @dams.has_key? name
+      STDERR.puts "WARNING Overwriting existing dam '#{name}'" if @sums.has_key? name
       @sums[name] = callback
     end
 
