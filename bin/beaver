@@ -4,10 +4,6 @@ require 'optparse'
 require 'rubygems'
 require 'beaver'
 
-#
-# This application was installed by RubyGems as part of the 'beaver' gem.
-#
-
 # Parse a string from the command-line into a Date object
 def parse_date(date)
   case date
@@ -19,7 +15,7 @@ end
 
 options = {}
 o = OptionParser.new do |opts|
-  opts.banner = 'Usage: beaver dams.rb [options] /path/to/rails/production.log [/another/log [/yet/another/log]]'
+  opts.banner = 'Usage: beaver [options] dsl.rb [dsl2.rb...] /rails/production.log [/rails/production2.log...]'
   opts.on('--on DATE', 'Only include log entries from the given date (yyyy-mm-dd or -n days)') { |d| options[:on] = parse_date(d) }
   opts.on('--after DATE', 'Only include log entries from after the given date (yyyy-mm-dd or -n days)') { |d| options[:after] = parse_date(d) }
   opts.on('--before DATE', 'Only include log entries from before the given date (yyyy-mm-dd or -n days)') { |d| options[:before] = parse_date(d) }
@@ -29,12 +25,18 @@ o = OptionParser.new do |opts|
 end
 o.parse!
 
-if ARGV.size < 2
+# Separate the beaver files and log files
+beaver_files, log_files = ARGV.uniq.partition { |a| a =~ /\.rb$/ }
+
+if beaver_files.empty? or log_files.empty?
   puts o.banner
   exit 1
 end
 
-beaver_file = File.open(ARGV.shift, &:read)
-Beaver.parse *[ARGV, options].flatten do
-  eval beaver_file
+# Read in the beaver files
+beaver_files.map! { |b| File.open(b, &:read) }
+
+# Parse them
+Beaver.parse *[log_files, options].flatten do
+  beaver_files.each { |b| eval b }
 end
