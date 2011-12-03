@@ -47,7 +47,7 @@ module Beaver
 
     # Define a sumarry for a Dam
     def dam(name, &callback)
-      raise ArgumentError, "Unable to find a Dam named #{name}" unless @dams.has_key? name
+      STDERR.puts "WARNING You have defined a Beaver Dam for '#{name}', but you have not yet defined a hit for '#{name}'" unless @dams.has_key? name
       @sums[name] = callback
     end
 
@@ -66,7 +66,7 @@ module Beaver
         end
       end
       @sums.each do |dam_name, callback|
-        @dams[dam_name].instance_eval(&callback) if @dams[dam_name].hits.any?
+        @dams[dam_name].instance_eval(&callback) if @dams[dam_name] && @dams[dam_name].hits.any?
       end
     end
 
