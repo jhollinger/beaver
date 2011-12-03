@@ -7,22 +7,14 @@ Beaver is a light DSL for parsing Rails production logs back into usable data. I
 * How many Widgets were created yesterday, and with what data?
 * Did anyone submit a form with the words "kill them all"? Yikes.
 
-Beaver is *not* intended as a replacement for something like Google Analytics, as it is trying to answer some differents kinds of questions.
-Rails logs contain some great information, but I've never found a good tool for using them programatically (except for speed analyzers).
-Hopefully Beaver can fill that niche for you. Personally I find it quite useful with Logwatch.
-
 Read the full documentation at {jordanhollinger.com/docs/beaver/}[http://jordanhollinger.com/docs/beaver/].
 For a full list of matchers available to "hit", see the Beaver::Dam class. For a full list of methods available inside a "hit" block, or to members
 of the "hits" array in a "dam" block, see the Beaver::Request class.
 
 == Installation
-Beaver is still somewhat experimental, but it has proved stable and robust enough for a non-beta release.
-
   [sudo] gem install beaver
 
 == Run a DSL file with beaver
-Write your beaver DSL file:
-
   hit :failed_login, :method => :post, :path => '/login', :status => 401
 
   hit :new_widgets, :path => '/widgets', :method => :post, :status => 302 do
@@ -58,8 +50,6 @@ Run ''beaver'' from the command line, passing in your beaver file and some logs:
   beaver my_beaver_file.rb /var/www/rails-app/log/production.log*
 
 == Use your own Beaver
-Use the Beaver DSL in your own code:
-
   require 'rubygems'
   require 'beaver'
 
@@ -75,7 +65,7 @@ Use the Beaver DSL in your own code:
 
 == Use beaver like grep for Rails logs
 
-Pretty difficult to grep through a multi-line log format and output each matching multi-line event. But Beaver is up to it:
+It's pretty difficult to grep through a multi-line log format and output each matching multi-line event. But Beaver is up to it:
 
   beaver --path="/widgets.*" --method=post,put /var/www/rails-app/log/production.log
 
@@ -102,11 +92,9 @@ In /etc/logwatch/scripts/services/your_app:
 == Your Rails app should return appropriate HTTP statuses
 Rails does a lot of great things for us, but one thing largely up to us are
 HTTP status codes. For example, your failed logins are probably returning
-200 when they should arguably be returning 400 or 401.
+200 when they should arguably be returning 400 or 401. It's easy to do, and very useful to Beaver.
 
   render :action => :login, :status => 401
-
-See, it's easy. And very useful to Beaver.
 
 == License
 Copyright 2011 Jordan Hollinger
