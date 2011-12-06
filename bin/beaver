@@ -30,7 +30,7 @@ o = OptionParser.new do |opts|
   opts.on('--today', 'Alias to --on=-0') { options[:on] = Date.today }
   opts.on('--yesterday', 'Alias to --on=-1') { options[:on] = Date.today-1 }
   opts.on('--regex REGEX', 'A regex string to be matched against the entire request') { |r| options[:match] = Regexp.new(r, Regexp::IGNORECASE) }
-  opts.on('--print FORMAT', 'Formatted request string, e.g. "%{ip} went to %{path} passing %{params[:email]}"') { |hit| options[:hit] = hit }
+  opts.on('--print FORMAT', 'Formatted request string, e.g. "%{ip} went to %{path} passing %{params[:email]}"') { |hit| options[:print] = hit }
   opts.on('-v', '--version', 'Show version') { puts "beaver #{Beaver::VERSION}"; exit }
 end
 o.parse!
@@ -46,17 +46,17 @@ end
 
 # Run logs through the DSL file(s)
 if beaver_files.any?
-  STDERR.puts "WARNING --hit is ignored when running Beaver DSL files" if options[:hit]
+  STDERR.puts "WARNING --print is ignored when running Beaver DSL files" if options[:print]
 
   beaver_files.map! { |b| File.open(b, &:read) }
-  Beaver.parse *[log_files, options].flatten do
+  Beaver.stream *[log_files, options].flatten do
     beaver_files.each { |b| eval b }
   end
 # Run logs through the CLI options
 else
-  Beaver.parse *log_files do
+  Beaver.stream *log_files do
     hit :cli, options do
-      puts options[:hit] ? eval('"'+options[:hit].gsub(/%\{/, '#{')+'"') : to_s << $/
+      puts options[:print] ? eval('"'+options[:print].gsub(/%\{/, '#{')+'"') : to_s << $/
     end
   end
 end

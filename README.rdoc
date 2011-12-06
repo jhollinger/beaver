@@ -58,7 +58,7 @@ Run ''beaver'' from the command line, passing in your beaver file and some logs:
           '/var/www/rails-app/log/production.log.1']
 
   # Parse the logs, but only include requests from yesterday
-  Beaver.parse logs, :on => Date.today-1 do
+  Beaver.stream logs, :on => Date.today-1 do
     hit :failed_login, :method => :post, :path => '/login', :status => 401
     ...
   end
