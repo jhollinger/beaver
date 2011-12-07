@@ -18,6 +18,8 @@ o = OptionParser.new do |opts|
   opts.banner = 'Usage: beaver [options] [dsl.rb...] /rails/production.log...'
   opts.on('--path PATH', 'URL path, string or regex') { |path| options[:path] = Regexp.new(path, Regexp::IGNORECASE) }
   opts.on('--method METHOD', 'HTTP request method(s), e.g. get or post,put') { |methods| options[:method] = methods.split(',').map { |m| m.downcase.to_sym } }
+  opts.on('--controller CONTROLLER', 'Rails controller name or regex') { |c| options[:controller] = Regexp.new(c, Regexp::IGNORECASE) }
+  opts.on('--action CONTROLLER', 'Rails action name or regex') { |a| options[:action] = Regexp.new(a, Regexp::IGNORECASE) }
   opts.on('--status STATUS', 'HTTP status(es), e.g. 200 or 500..503') { |s| options[:status] = s =~ /(\.+)/ ? Range.new(*s.split($1).map(&:to_i)) : s.to_i }
   opts.on('--ip IP', 'IP address, string or regex') { |ip| options[:ip] = Regexp.new(ip) }
   opts.on('--params PARAMS', 'Request parameters string (a Ruby Hash), string or regex') { |params| options[:params_str] = Regexp.new(params, Regexp::IGNORECASE) }

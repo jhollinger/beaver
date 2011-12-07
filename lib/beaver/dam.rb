@@ -7,6 +7,10 @@ module Beaver
   #  :path => String for exact match, or Regex
   #
   #  :method => A Symbol of :get, :post, :put or :delete, or any array of any (reads the magic _method field if present)
+  # 
+  #  :controller => A String like 'FooController' or a Regex like /foo/i
+  # 
+  #  :action => A String like 'index' or a Regex like /(index)|(show)/
   #
   #  :status => A Fixnum like 404 or a Range like (500..503)
   # 
@@ -58,15 +62,15 @@ module Beaver
     # Returns true if the given Request hits this Dam, false if not.
     def matches?(request)
       return false if request.final?
-      return false unless @match_path_s.nil? or @match_path_s == request.path
-      return false unless @match_path_r.nil? or @match_path_r =~ request.path
+      return false unless @match_path.nil? or @match_path === request.path
       return false unless @match_longer.nil? or @match_longer < request.ms
       return false unless @match_shorter.nil? or @match_shorter > request.ms
       return false unless @match_method_s.nil? or @match_method_s == request.method
       return false unless @match_method_a.nil? or @match_method_a.include? request.method
       return false unless @match_status.nil? or @match_status === request.status
-      return false unless @match_ip_s.nil? or @match_ip_s == request.ip
-      return false unless @match_ip_r.nil? or @match_ip_r =~ request.ip
+      return false unless @match_controller.nil? or @match_controller === request.controller
+      return false unless @match_action.nil? or @match_action === request.action
+      return false unless @match_ip.nil? or @match_ip === request.ip
       return false unless @match_format_s.nil? or @match_format_s == request.format
       return false unless @match_format_a.nil? or @match_format_a.include? request.format
       return false unless @match_before.nil? or @match_before > request.time
@@ -105,32 +109,44 @@ module Beaver
 
     # Parses and checks the validity of the matching options passed to the Dam.
     def set_matchers(matchers)
-      case matchers[:path].class.name
-        when String.name then @match_path_s = matchers[:path]
-        when Regexp.name then @match_path_r = matchers[:path]
-        else raise ArgumentError, "Path must be a String or a Regexp (it's a #{matchers[:path].class.name})"
+      if matchers[:path].respond_to? :===
+        @match_path = matchers[:path]
+      else
+        raise ArgumentError, "Path must respond to the '===' method; try a String or a Regexp (it's a #{matchers[:path].class.name})"
       end if matchers[:path]
 
-      case matchers[:method].class.name
-        when Symbol.name then @match_method_s = matchers[:method].to_s.downcase.to_sym
-        when Array.name then @match_method_a = matchers[:method].map { |m| m.to_s.downcase.to_sym }
+      case
+        when matchers[:method].is_a?(Symbol) then @match_method_s = matchers[:method].to_s.downcase.to_sym
+        when matchers[:method].is_a?(Array) then @match_method_a = matchers[:method].map { |m| m.to_s.downcase.to_sym }
         else raise ArgumentError, "Method must be a Symbol or an Array (it's a #{matchers[:method].class.name})"
       end if matchers[:method]
+
+      if matchers[:controller].respond_to? :===
+        @match_controller = matchers[:controller]
+      else
+        raise ArgumentError, "Controller must respond to the '===' method; try a String or a Regexp (it's a #{matchers[:controller].class.name})"
+      end if matchers[:controller]
+
+      if matchers[:action].respond_to? :===
+        @match_action = matchers[:action]
+      else
+        raise ArgumentError, "Action must respond to the '===' method; try a String or a Regexp (it's a #{matchers[:action].class.name})"
+      end if matchers[:action]
 
       case matchers[:status].class.name
         when Fixnum.name, Range.name then @match_status = matchers[:status]
         else raise ArgumentError, "Status must be a Fixnum or a Range (it's a #{matchers[:status].class.name})"
       end if matchers[:status]
 
-      case matchers[:ip].class.name
-        when String.name then @match_ip_s = matchers[:ip]
-        when Regexp.name then @match_ip_r = matchers[:ip]
-        else raise ArgumentError, "IP must be a String or a Regexp (it's a #{matchers[:ip].class.name})"
+      if matchers[:ip].respond_to? :===
+        @match_ip = matchers[:ip]
+      else
+        raise ArgumentError, "IP must respond to the '===' method; try a String or a Regexp (it's a #{matchers[:ip].class.name})"
       end if matchers[:ip]
 
-      case matchers[:format].class.name
-        when Symbol.name then @match_format_s = matchers[:format].to_s.downcase.to_sym
-        when Array.name then @match_format_a = matchers[:format].map { |f| f.to_s.downcase.to_sym }
+      case
+        when matchers[:format].is_a?(Symbol) then @match_format_s = matchers[:format].to_s.downcase.to_sym
+        when matchers[:format].is_a?(Array) then @match_format_a = matchers[:format].map { |f| f.to_s.downcase.to_sym }
         else raise ArgumentError, "Format must be a Symbol or an Array (it's a #{matchers[:format].class.name})"
       end if matchers[:format]
 
@@ -144,33 +160,27 @@ module Beaver
         else raise ArgumentError, "shorter_than must be a Fixnum (it's a #{matchers[:shorter_than].class.name})"
       end if matchers[:shorter_than]
 
-      if matchers[:before]
-        @match_before = if matchers[:before].is_a? Time
-          matchers[:before]
-        elsif matchers[:before].is_a? Date
-          Utils::NormalizedTime.new(matchers[:before].year, matchers[:before].month, matchers[:before].day)
-        else
-          raise ArgumentError, "before must be a Date or Time (it's a #{matchers[:before].class.name})"
-        end
-      end
+      @match_before = if matchers[:before].is_a? Time
+        matchers[:before]
+      elsif matchers[:before].is_a? Date
+        Utils::NormalizedTime.new(matchers[:before].year, matchers[:before].month, matchers[:before].day)
+      else
+        raise ArgumentError, "before must be a Date or Time (it's a #{matchers[:before].class.name})"
+      end if matchers[:before]
 
-      if matchers[:after]
-        @match_after = if matchers[:after].is_a? Time
-          matchers[:after]
-        elsif matchers[:after].is_a? Date
-          Utils::NormalizedTime.new(matchers[:after].year, matchers[:after].month, matchers[:after].day)
-        else
-          raise ArgumentError, "after must be a Date or Time (it's a #{matchers[:after].class.name})"
-        end
-      end
+      @match_after = if matchers[:after].is_a? Time
+        matchers[:after]
+      elsif matchers[:after].is_a? Date
+        Utils::NormalizedTime.new(matchers[:after].year, matchers[:after].month, matchers[:after].day)
+      else
+        raise ArgumentError, "after must be a Date or Time (it's a #{matchers[:after].class.name})"
+      end if matchers[:after]
 
-      if matchers[:on]
-        if matchers[:on].is_a? Date
-          @match_on = matchers[:on]
-        else
-          raise ArgumentError, "on must be a Date (it's a #{matchers[:on].class.name})"
-        end
-      end
+      if matchers[:on].is_a? Date
+        @match_on = matchers[:on]
+      else
+        raise ArgumentError, "on must be a Date (it's a #{matchers[:on].class.name})"
+      end if matchers[:on]
 
       case matchers[:params_str].class.name
         when Regexp.name then @match_params_str = matchers[:params_str]

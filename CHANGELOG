@@ -3,6 +3,7 @@
 * Improved performance for large logs (Beaver#stream)
 * Reduced memory usage (theoretically, anyway)
 * Added Rails controller and action matchers, methods, etc.
+* Various minor improvements
 
 ** RELEASE 1.0.0 (12/3/2011) **
 

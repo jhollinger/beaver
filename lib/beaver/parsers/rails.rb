@@ -7,6 +7,8 @@ module Beaver
 
       REGEX_METHOD = /^Started ([A-Z]+)/
       REGEX_METHOD_OVERRIDE = /"_method"=>"([A-Z]+)"/i
+      REGEX_CONTROLLER = /Processing by (\w+Controller)#/
+      REGEX_ACTION = /Processing by \w+Controller#(\w+) as/
       REGEX_COMPLETED = /^Completed (\d+)/
       REGEX_PATH = /^Started \w{3,4} "([^"]+)"/
       REGEX_PARAMS_STR = /^  Parameters: (\{.+\})$/
@@ -42,6 +44,18 @@ module Beaver
         m = REGEX_METHOD_OVERRIDE.match(@lines)
         m = REGEX_METHOD.match(@lines) if m.nil?
         m ? m.captures.first.downcase.to_sym : :unknown
+      end
+
+      # Parses the name of the Rails controller which handled the request
+      def parse_controller
+        c = REGEX_CONTROLLER.match(@lines) if c.nil?
+        c ? c.captures.first : BLANK_STR
+      end
+
+      # Parses the name of the Rails controller action which handled the request
+      def parse_action
+        a = REGEX_ACTION.match(@lines) if a.nil?
+        a ? a.captures.first : BLANK_STR
       end
 
       # Parses and returns the response status

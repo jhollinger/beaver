@@ -13,13 +13,13 @@ Completed 302 Found in 27ms
 
 
 Started POST "/widgets/2" for 216.84.130.30 at 2011-08-30 10:07:40 -0400
-  Processing by WidgetsController#updated as HTML
+  Processing by WidgetsController#update as HTML
   Parameters: {"utf8"=>"✓", "authenticity_token"=>"PFO2RnDpeXWu6vvTQcJlWoB8jCuTqa8mpgLhLEXQohM=", "name"=>"Three-toed sock", "price"=>"10.00", "_method"=>"put"}
 Redirected to http://example.com/widgets/2
 Completed 302 Found in 28ms
 
 Started POST "/big_form" for 216.84.130.30 at 2011-08-30 10:08:50 -0400
-  Processing by WidgetsController#updated as HTML
+  Processing by WidgetsController#update as HTML
   Parameters: {"hi"=>"Hello", "boo"=>"Boo", "sub"=>{"1"=>"5", "eight"=>"8", "2"=>"3", "7"=>"10"}, "end"=>"The End", "a"=>["1", "2", "3"], "another end"=>"The End 2"}
 Redirected to http://example.com/big_form
 Completed 302 Found in 26ms

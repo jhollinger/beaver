@@ -49,6 +49,16 @@ module Beaver
       @method ||= parse_method
     end
 
+    # Returns the class name of the Rails controller that handled the request
+    def controller
+      @controller ||= parse_controller
+    end
+
+    # Returns the class name of the Rails controller action that handled the request
+    def action
+      @action ||= parse_action
+    end
+
     # Returns the response status
     def status
       @status ||= parse_status
@@ -114,6 +124,16 @@ module Beaver
     # Parses and returns the request method
     def parse_method
       :method
+    end
+
+    # Parses the name of the Rails controller which handled the request
+    def parse_controller
+      BLANK_STR
+    end
+
+    # Parses the name of the Rails controller action which handled the request
+    def parse_action
+      BLANK_STR
     end
 
     # Parses and returns the response status
