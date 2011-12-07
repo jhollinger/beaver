@@ -95,6 +95,12 @@ module Beaver
       end
 
       # Parses and returns the time at which the request was made
+      def parse_date
+        m = REGEX_TIME.match(@lines)
+        m ? Date.parse(m.captures.first) : nil
+      end
+
+      # Parses and returns the time at which the request was made
       def parse_time
         m = REGEX_TIME.match(@lines)
         m ? Time.parse(m.captures.first) : nil

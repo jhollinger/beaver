@@ -1,3 +1,4 @@
+require 'date'
 require 'time'
 
 module Beaver
@@ -89,6 +90,11 @@ module Beaver
       @ms ||= parse_ms
     end
 
+    # Returns the date on which the request was made
+    def date
+      @date ||= parse_date
+    end
+
     # Returns the time at which the request was made
     def time
       @time ||= parse_time
@@ -164,6 +170,11 @@ module Beaver
     # Parses and returns the number of milliseconds it took for the request to complete
     def parse_ms
       0
+    end
+
+    # Parses and returns the date on which the request was made
+    def parse_date
+      nil
     end
 
     # Parses and returns the time at which the request was made

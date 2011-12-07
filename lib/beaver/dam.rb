@@ -75,7 +75,7 @@ module Beaver
       return false unless @match_format_a.nil? or @match_format_a.include? request.format
       return false unless @match_before.nil? or @match_before > request.time
       return false unless @match_after.nil? or @match_after < request.time
-      return false unless @match_on.nil? or (@match_on.year == request.time.year and @match_on.month == request.time.month and @match_on.day == request.time.day)
+      return false unless @match_on.nil? or @match_on == request.date
       return false unless @match_params_str.nil? or @match_params_str =~ request.params_str
       return false unless @match_r.nil? or @match_r =~ request.to_s
       return false unless @match_params.nil? or matching_hashes?(@match_params, request.params)
