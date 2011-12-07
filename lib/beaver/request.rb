@@ -123,7 +123,7 @@ module Beaver
 
     # Parses and returns the request method
     def parse_method
-      :method
+      :unknown
     end
 
     # Parses the name of the Rails controller which handled the request
@@ -133,7 +133,7 @@ module Beaver
 
     # Parses the name of the Rails controller action which handled the request
     def parse_action
-      BLANK_STR
+      :unknown
     end
 
     # Parses and returns the response status
@@ -158,7 +158,7 @@ module Beaver
 
     # Parses and returns the respones format
     def parse_format
-      :format
+      :unknown
     end
 
     # Parses and returns the number of milliseconds it took for the request to complete

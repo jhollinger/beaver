@@ -69,7 +69,7 @@ module Beaver
       return false unless @match_method_a.nil? or @match_method_a.include? request.method
       return false unless @match_status.nil? or @match_status === request.status
       return false unless @match_controller.nil? or @match_controller === request.controller
-      return false unless @match_action.nil? or @match_action === request.action
+      return false unless @match_action.nil? or @match_action === request.action.to_s or @match_action == request.action
       return false unless @match_ip.nil? or @match_ip === request.ip
       return false unless @match_format_s.nil? or @match_format_s == request.format
       return false unless @match_format_a.nil? or @match_format_a.include? request.format
@@ -127,10 +127,10 @@ module Beaver
         raise ArgumentError, "Controller must respond to the '===' method; try a String or a Regexp (it's a #{matchers[:controller].class.name})"
       end if matchers[:controller]
 
-      if matchers[:action].respond_to? :===
+      if matchers[:action].respond_to? :=== or matchers[:action].is_a? Symbol
         @match_action = matchers[:action]
       else
-        raise ArgumentError, "Action must respond to the '===' method; try a String or a Regexp (it's a #{matchers[:action].class.name})"
+        raise ArgumentError, "Action must respond to the '===' method or be a Symbol; try a String, Symbol or a Regexp (it's a #{matchers[:action].class.name})"
       end if matchers[:action]
 
       case matchers[:status].class.name

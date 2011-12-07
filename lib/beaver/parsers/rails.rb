@@ -55,7 +55,7 @@ module Beaver
       # Parses the name of the Rails controller action which handled the request
       def parse_action
         a = REGEX_ACTION.match(@lines) if a.nil?
-        a ? a.captures.first : BLANK_STR
+        a ? a.captures.first.to_sym : :unknown
       end
 
       # Parses and returns the response status

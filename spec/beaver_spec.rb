@@ -54,6 +54,12 @@ describe Beaver do
     dam.hits.size.should == 2
   end
 
+  it "should match on the controller and action" do
+    dam = @beaver.hit :widgets_updated, :controller => /widgets/i, :action => :update
+    @beaver.filter
+    dam.hits.size.should == 2
+  end
+
   it "should match the request status" do
     dam = @beaver.hit :okay, :status => 200
     @beaver.filter
