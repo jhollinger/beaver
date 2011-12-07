@@ -1,4 +1,10 @@
-** RELEASE 1.0.0 (Pending) **
+** RELEASE 1.1.0 (Pending) **
+
+* Improved performance for large logs (Beaver#stream)
+* Reduced memory usage (theoretically, anyway)
+* Added Rails controller and action matchers, methods, etc.
+
+** RELEASE 1.0.0 (12/3/2011) **
 
 * Added a response format parser and matcher (html, json, etc)
 * Ability to pass simple DSL options directly through the command-line, making DSL files optional
