@@ -65,7 +65,7 @@ Run ''beaver'' from the command line, passing in your beaver file and some logs:
 
 == Beavers love Unix
 
-It's difficult to grep through a multi-line log format like Rails' and output each matching multi-line event. Only the most hardened *nix warriors are undaunted. And beavers.
+It's difficult to grep through a multi-line log format like Rails' and output each matching multi-line event (though I hear Google is working on a 'Context-Free Grep', which may help solve that). Until then, for Rails anyway, beaver is happy to step in.
 
   beaver --path="/widgets" --method=post,put /var/www/rails-app/log/production.log
 
