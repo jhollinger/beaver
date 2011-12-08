@@ -1,6 +1,6 @@
 == Beaver, chewing through logs to make something useful
 
-Beaver is a light DSL for parsing Rails production logs back into usable data. It answers questions like:
+Beaver is a light DSL and command line utility for parsing Rails production logs back into usable data. It answers questions like:
 
 * How many failed logins have there been today? Were they for the same user? From the same IP?
 * How many 500, 404, etc. errors yesterday? On what pages?
@@ -65,13 +65,13 @@ Run ''beaver'' from the command line, passing in your beaver file and some logs:
 
 == Beavers love Unix
 
-It's pretty difficult to grep through a multi-line log format and output each matching multi-line event. But Beaver is up to it:
+It's difficult to grep through a multi-line log format like Rails' and output each matching multi-line event. Only the most hardened *nix warriors are undaunted. And beavers.
 
-  beaver --path="/widgets.*" --method=post,put /var/www/rails-app/log/production.log
+  beaver --path="/widgets" --method=post,put /var/www/rails-app/log/production.log
 
 Or format the output to a single line:
 
-  beaver --path="/widgets.*" --method=post,put /var/www/rails-app/log/production.log --print "%{ip} hit %{path} using %{method}"
+  beaver --controller=widgets /var/www/rails-app/log/production.log --print "%{ip} hit %{action} using %{method}"
 
 Also accepts log content from pipes and stdin (might be a bit faster):
 
