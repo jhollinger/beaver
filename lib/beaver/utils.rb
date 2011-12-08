@@ -92,6 +92,15 @@ module Beaver
       YAML.load s
     end
 
+    # Parse a string (from a command-line arg) into a Date object
+    def self.parse_date(date)
+      case date
+        when /^[0-9]{4}-[0-9]{2}-[0-9]{2}$/ then Date.parse(date)
+        when /^-\d+$/ then Date.today + date.to_i
+        else nil
+      end
+    end
+
     # Normalizes Time.new across Ruby 1.8 and 1.9.
     # Accepts the same arguments as Time.
     class NormalizedTime < ::Time

@@ -4,15 +4,6 @@ require 'optparse'
 require 'rubygems'
 require 'beaver'
 
-# Parse a string from the command-line into a Date object
-def parse_date(date)
-  case date
-    when /^[0-9]{4}-[0-9]{2}-[0-9]{2}$/ then Date.parse(date)
-    when /^-\d+$/ then Date.today + date.to_i
-    else nil
-  end
-end
-
 options = {}
 o = OptionParser.new do |opts|
   opts.banner = 'Usage: beaver [options] [dsl.rb...] [/rails/production.log...]'
@@ -26,9 +17,9 @@ o = OptionParser.new do |opts|
   opts.on('--format FORMAT', 'Response format(s), e.g. html or json,xml') { |f| options[:format] = f.split(',').map(&:to_sym) }
   opts.on('--longer-than MS', 'Minimum response time in ms') { |ms| options[:longer_than] = ms.to_i }
   opts.on('--shorter-than MS', 'Maximum response time in ms') { |ms| options[:shorter_than] = ms.to_i }
-  opts.on('--on DATE', 'Only include log entries from the given date (yyyy-mm-dd or -n days)') { |d| options[:on] = parse_date(d) }
-  opts.on('--after DATE', 'Only include log entries from after the given date (yyyy-mm-dd or -n days)') { |d| options[:after] = parse_date(d) }
-  opts.on('--before DATE', 'Only include log entries from before the given date (yyyy-mm-dd or -n days)') { |d| options[:before] = parse_date(d) }
+  opts.on('--on DATE', 'Only include log entries from the given date (yyyy-mm-dd or -n days)') { |d| options[:on] = Beaver::Utils.parse_date(d) }
+  opts.on('--after DATE', 'Only include log entries from after the given date (yyyy-mm-dd or -n days)') { |d| options[:after] = Beaver::Utils.parse_date(d) }
+  opts.on('--before DATE', 'Only include log entries from before the given date (yyyy-mm-dd or -n days)') { |d| options[:before] = Beaver::Utils.parse_date(d) }
   opts.on('--today', 'Alias to --on=-0') { options[:on] = Date.today }
   opts.on('--yesterday', 'Alias to --on=-1') { options[:on] = Date.today-1 }
   opts.on('--regex REGEX', 'A regex string to be matched against the entire request') { |r| options[:match] = Regexp.new(r, Regexp::IGNORECASE) }
