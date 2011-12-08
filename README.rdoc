@@ -63,7 +63,7 @@ Run ''beaver'' from the command line, passing in your beaver file and some logs:
     ...
   end
 
-== Use beaver like grep for Rails logs
+== Beavers love Unix
 
 It's pretty difficult to grep through a multi-line log format and output each matching multi-line event. But Beaver is up to it:
 
@@ -73,7 +73,15 @@ Or format the output to a single line:
 
   beaver --path="/widgets.*" --method=post,put /var/www/rails-app/log/production.log --print "%{ip} hit %{path} using %{method}"
 
-The command-line matchers are nearly identical to the DSL's. See more details with 'beaver --help'.
+Also accepts log content from pipes and stdin (might be a bit faster):
+
+  cat /var/www/rails-app/log/production.log* | beaver --action=edit
+
+  beaver --action=edit < /var/www/rails-app/log/production.log.1 
+
+  beaver --action=edit --stdin
+
+See all options with 'beaver --help'.
 
 == Example use with Logwatch
 This assumes 1) you're rotating your Rails logs daily and 2) you're running logwatch daily.

@@ -47,19 +47,24 @@ module Beaver
   # beaver.parse.filter
   # 
   class Beaver
-    # The files to parse
-    attr_reader :files
+    # The log files to parse
+    attr_reader :logs
+    # Parse stdin (ignores tty)
+    attr_accessor :stdin
+    # Enables parsing from tty *if* @stdin in also true
+    attr_accessor :tty
     # The Beaver::Dam objects you're defined
     attr_reader :dams
-    # The Beaver::Request objects matched in the given files (only availble with Beaver#parse)
+    # The Beaver::Request objects matched in the given log files (only availble with Beaver#parse)
     attr_reader :requests
 
     # Pass in globs or file paths. The final argument may be an options Hash.
     # These options will be applied as matchers to all hits. See Beaver::Dam for available options.
     def initialize(*args, &blk)
       @global_matchers = args.last.is_a?(Hash) ? args.pop : {}
-      @files = args.map { |a| Dir.glob(a) }
-      @files.flatten!
+      @logs = args.map { |a| Dir.glob(a) }
+      @logs.flatten!
+      @stdin, @tty = false, false
       @requests, @dams, @sums = [], {}, {}
       instance_eval(&blk) if block_given?
     end
@@ -113,6 +118,23 @@ module Beaver
       self
     end
 
+    # Tells this Beaver to look in STDIN for log content to parse. NOTE This ignores tty input unless you also call Beaver#tty!.
+    # 
+    # *Must* be called before "stream" or "parse" to have any effect. Returns "self," so it is chainable. Can also be used in the DSL.
+    def stdin!
+      @stdin = true
+      self
+    end
+
+    # Tells this Beaver to look in STDIN for tty input.
+    # 
+    # *Must* be called before "stream" or "parse" to have any effect. Returns "self," so it is chainable. Can also be used in the DSL.
+    def tty!
+      stdin!
+      @tty = true
+      self
+    end
+
     private
 
     # Run the callback on each dam matching request. Optionally pass a block, which will be passed back matching dams.
@@ -141,26 +163,38 @@ module Beaver
       end
     end
 
-    # Parses @files into requests, and passes each request to &blk.
+    # Parses @logs into requests, and passes each request to &blk.
     def _parse(&blk)
-      for file in @files
+      request = nil
+      # Parses a line into part of a request
+      parse_it = lambda { |line|
+        request ||= Request.for(line).new
+        if request.bad?
+          request = nil
+          next
+        end
+        request << line
+        if request.completed?
+          blk.call(request)
+          request = nil
+        end
+      }
+
+      # Parse stdin
+      if @tty
+        STDIN.read.each_line &parse_it # Read entire stream, then parse it - looks much better to the user
+      elsif !STDIN.tty?
+        STDIN.each_line &parse_it
+      end if @stdin
+      request = nil
+
+      # Parse log files
+      for file in @logs
         zipped = file =~ /\.gz\Z/i
         next if zipped and not defined? Zlib
         File.open(file, 'r:UTF-8') do |f|
           handle = (zipped ? Zlib::GzipReader.new(f) : f)
-          request = nil
-          handle.each_line do |line|
-            request = Request.for(line).new if request.nil?
-            if request.bad?
-              request = nil
-              next
-            end
-            request << line
-            if request.completed?
-              blk.call(request)
-              request = nil
-            end
-          end
+          handle.each_line &parse_it
         end
       end
     end
