@@ -4,25 +4,25 @@ require 'optparse'
 require 'rubygems'
 require 'beaver'
 
-options = {}
+options, matchers = {}, {}
 o = OptionParser.new do |opts|
   opts.banner = 'Usage: beaver [options] [dsl.rb...] [/rails/production.log...]'
-  opts.on('--path PATH', 'URL path, string or regex') { |path| options[:path] = Regexp.new(path, Regexp::IGNORECASE) }
-  opts.on('--method METHOD', 'HTTP request method(s), e.g. get or post,put') { |methods| options[:method] = methods.split(',').map { |m| m.downcase.to_sym } }
-  opts.on('--controller CONTROLLER', 'Rails controller name or regex') { |c| options[:controller] = Regexp.new(c, Regexp::IGNORECASE) }
-  opts.on('--action CONTROLLER', 'Rails action name or regex') { |a| options[:action] = Regexp.new(a, Regexp::IGNORECASE) }
-  opts.on('--status STATUS', 'HTTP status(es), e.g. 200 or 500..503') { |s| options[:status] = s =~ /(\.+)/ ? Range.new(*s.split($1).map(&:to_i)) : s.to_i }
-  opts.on('--ip IP', 'IP address, string or regex') { |ip| options[:ip] = Regexp.new(ip) }
-  opts.on('--params PARAMS', 'Request parameters string (a Ruby Hash), string or regex') { |params| options[:params_str] = Regexp.new(params, Regexp::IGNORECASE) }
-  opts.on('--format FORMAT', 'Response format(s), e.g. html or json,xml') { |f| options[:format] = f.split(',').map(&:to_sym) }
-  opts.on('--longer-than MS', 'Minimum response time in ms') { |ms| options[:longer_than] = ms.to_i }
-  opts.on('--shorter-than MS', 'Maximum response time in ms') { |ms| options[:shorter_than] = ms.to_i }
-  opts.on('--on DATE', 'Only include log entries from the given date (yyyy-mm-dd or -n days)') { |d| options[:on] = Beaver::Utils.parse_date(d) }
-  opts.on('--after DATE', 'Only include log entries from after the given date (yyyy-mm-dd or -n days)') { |d| options[:after] = Beaver::Utils.parse_date(d) }
-  opts.on('--before DATE', 'Only include log entries from before the given date (yyyy-mm-dd or -n days)') { |d| options[:before] = Beaver::Utils.parse_date(d) }
-  opts.on('--today', 'Alias to --on=-0') { options[:on] = Date.today }
-  opts.on('--yesterday', 'Alias to --on=-1') { options[:on] = Date.today-1 }
-  opts.on('--regex REGEX', 'A regex string to be matched against the entire request') { |r| options[:match] = Regexp.new(r, Regexp::IGNORECASE) }
+  opts.on('--path PATH', 'URL path, string or regex') { |path| matchers[:path] = Regexp.new(path, Regexp::IGNORECASE) }
+  opts.on('--method METHOD', 'HTTP request method(s), e.g. get or post,put') { |methods| matchers[:method] = methods.split(',').map { |m| m.downcase.to_sym } }
+  opts.on('--controller CONTROLLER', 'Rails controller name or regex') { |c| matchers[:controller] = Regexp.new(c, Regexp::IGNORECASE) }
+  opts.on('--action CONTROLLER', 'Rails action name or regex') { |a| matchers[:action] = Regexp.new(a, Regexp::IGNORECASE) }
+  opts.on('--status STATUS', 'HTTP status(es), e.g. 200 or 500..503') { |s| matchers[:status] = s =~ /(\.+)/ ? Range.new(*s.split($1).map(&:to_i)) : s.to_i }
+  opts.on('--ip IP', 'IP address, string or regex') { |ip| matchers[:ip] = Regexp.new(ip) }
+  opts.on('--params PARAMS', 'Request parameters string (a Ruby Hash), string or regex') { |params| matchers[:params_str] = Regexp.new(params, Regexp::IGNORECASE) }
+  opts.on('--format FORMAT', 'Response format(s), e.g. html or json,xml') { |f| matchers[:format] = f.split(',').map(&:to_sym) }
+  opts.on('--longer-than MS', 'Minimum response time in ms') { |ms| matchers[:longer_than] = ms.to_i }
+  opts.on('--shorter-than MS', 'Maximum response time in ms') { |ms| matchers[:shorter_than] = ms.to_i }
+  opts.on('--on DATE', 'Only include log entries from the given date (yyyy-mm-dd or -n days)') { |d| matchers[:on] = Beaver::Utils.parse_date(d) }
+  opts.on('--after DATE', 'Only include log entries from after the given date (yyyy-mm-dd or -n days)') { |d| matchers[:after] = Beaver::Utils.parse_date(d) }
+  opts.on('--before DATE', 'Only include log entries from before the given date (yyyy-mm-dd or -n days)') { |d| matchers[:before] = Beaver::Utils.parse_date(d) }
+  opts.on('--today', 'Alias to --on=-0') { matchers[:on] = Date.today }
+  opts.on('--yesterday', 'Alias to --on=-1') { matchers[:on] = Date.today-1 }
+  opts.on('--regex REGEX', 'A regex string to be matched against the entire request') { |r| matchers[:match] = Regexp.new(r, Regexp::IGNORECASE) }
   opts.on('--print FORMAT', 'Formatted request string, e.g. "%{ip} went to %{path} passing %{params[:email]}"') { |hit| options[:print] = hit }
   opts.on('--stdin', 'Read log content from stdin (for typing/pasting)') { options[:tty] = true }
   opts.on('-v', '--version', 'Show version') { puts "beaver #{Beaver::VERSION}"; exit }
@@ -31,7 +31,7 @@ o.parse!
 
 # Separate the beaver files and log files, then build the Beaver arguments
 beaver_files, log_files = ARGV.uniq.partition { |a| a =~ /\.rb$/ }
-args = beaver_files.any? ? [log_files, options].flatten : log_files
+args = beaver_files.any? ? log_files << matchers : log_files
 
 # Run Beaver
 Beaver.stream *args do
@@ -43,7 +43,7 @@ Beaver.stream *args do
     beaver_files.each { |b| eval b }
   # Filter the logs through the CLI options
   else
-    hit :cli, options do
+    hit :cli, matchers do
       puts options[:print] ? eval('"'+options[:print].gsub(/%\{/, '#{')+'"') : to_s << $/
     end
   end
