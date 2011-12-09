@@ -1,4 +1,4 @@
-** RELEASE 1.1.0 (Pending) **
+** RELEASE 1.1.0 (12/8/2011) **
 
 * Ability to parse log content from pipes and stdin
 * Improved performance for large logs (Beaver#stream)

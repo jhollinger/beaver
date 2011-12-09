@@ -8,7 +8,7 @@
 # end
 # 
 module Beaver
-  MAJOR_VERSION, MINOR_VERSION, TINY_VERSION, PRE_VERSION = 1, 0, 0, nil
+  MAJOR_VERSION, MINOR_VERSION, TINY_VERSION, PRE_VERSION = 1, 1, 0, nil
   VERSION = [MAJOR_VERSION, MINOR_VERSION, TINY_VERSION, PRE_VERSION].compact.join '.'
 
   # Creates a new Beaver and immediately filters the log files. This should scale well
