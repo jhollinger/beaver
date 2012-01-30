@@ -71,6 +71,12 @@ describe Beaver do
       end
 
       it "should match" do
+        dam = @beaver.hit :tags, :tagged => [['foo', 'bar'], ['steve', 'bla'], 'bar']
+        @beaver.filter
+        dam.hits.size.should == 2
+      end
+
+      it "should match" do
         dam = @beaver.hit :tags, :tagged => [['foo', 'bar'], ['steve', 'bar']]
         @beaver.filter
         dam.hits.size.should == 2
