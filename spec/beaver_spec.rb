@@ -63,31 +63,31 @@ describe Beaver do
   it "should match the request status" do
     dam = @beaver.hit :okay, :status => 200
     @beaver.filter
-    dam.hits.size.should == 1
+    dam.hits.size.should == 3
   end
 
   it "should match the request status range" do
     dam = @beaver.hit :okay, :status => (200..302)
     @beaver.filter
-    dam.hits.size.should == 4
+    dam.hits.size.should == 6
   end
 
   it "should capture all IP addresses" do
     dam = @beaver.hit :all
     @beaver.filter
-    dam.ips.size.should == 2
+    dam.ips.size.should == 3
   end
 
   it "should find the HTML responses" do
     dam = @beaver.hit :html, :format => :html
     @beaver.filter
-    dam.hits.size.should == 3
+    dam.hits.size.should == 5
   end
 
   it "should find the HTML and JSON responses" do
     dam = @beaver.hit :html, :format => [:html, :json]
     @beaver.filter
-    dam.hits.size.should == 3
+    dam.hits.size.should == 5
   end
 
   it "should find requests based on the params string" do
@@ -141,7 +141,7 @@ describe Beaver do
   it "should match after the request time" do
     dam = @beaver.hit :times, :after => ::Beaver::Utils::NormalizedTime.new(2011, 8, 1, 0, 0, 0)
     @beaver.filter
-    dam.hits.size.should == 2
+    dam.hits.size.should == 4
   end
 
   it "should match on the request time" do
@@ -153,6 +153,6 @@ describe Beaver do
   it "should match against the entire request" do
     dam = @beaver.hit :db_hits, :match => /ActiveRecord: \d/
     @beaver.filter
-    dam.hits.size.should == 1
+    dam.hits.size.should == 3
   end
 end
