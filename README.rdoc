@@ -6,7 +6,7 @@ Beaver is a light DSL and command line utility for parsing Rails production logs
 * How many 500, 404, etc. errors yesterday? On what pages?
 * How many Widgets were created yesterday, and with what data?
 * Did anyone submit a form with the words "kill them all"? Yikes.
-* Rails 3.2 tagged logging is cool, but what's a good way to review them? (Beaver is, since version 1.2.0)
+* Rails 3.2 tagged logging is cool, but what's a good way to review them?
 
 Read the full documentation at {jordanhollinger.com/docs/beaver/}[http://jordanhollinger.com/docs/beaver/].
 For a full list of matchers available to "hit", see the Beaver::Dam class. For a full list of methods available inside a "hit" block, or to members
@@ -109,11 +109,12 @@ HTTP status codes. For example, your failed logins are probably returning
 
   render :action => :login, :status => 401
 
+A detailed description of each status code and when to use it can be found at {www.w3.org}[http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html].
+
 == Complex tag querying
 Beaver supports complex Rails Tagged Logger tag quering, in both DSL and command-line modes.
 
 === DSL
-In short, the innermost level uses AND. If there is an outer level, it uses OR. Passing more than two levels is not supported.
 
   # Matches any request tagged with "foo"
   hit :tagged, :tagged => 'foo'
