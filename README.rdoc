@@ -128,8 +128,8 @@ Beaver supports complex Rails Tagged Logger tag quering, in both DSL and command
   hit :tagged_with_any, :tagged => [['foo'], ['bar']]
 
   # Matches any request tagged with ("foo" AND "bar") OR ("bar" AND "baz") OR "yay"
-  hit :tagged_and_or_and_or, :tagged => [['foo', 'foop'], ['bar', 'baz'], ['yay']]
-  # Could also be written ['foo, foop', 'bar, baz', 'yay']
+  hit :tagged_and_or_and_or, :tagged => [['foo', 'bar'], ['bar', 'baz'], ['yay']]
+  # Could also be written ['foo, bar', 'bar, baz', 'yay']
 
 === Command-line
 
@@ -142,8 +142,8 @@ Beaver supports complex Rails Tagged Logger tag quering, in both DSL and command
   # Matches any request tagged with "foo" OR "bar"
   beaver --tagged foo --tagged bar production.log
 
-  # Matches any request tagged with ("foo" AND "foop") OR ("bar" AND "baz") OR "yay"
-  beaver --tagged foo,foop --taged bar,baz --tagged yay production.log
+  # Matches any request tagged with ("foo" AND "bar") OR ("bar" AND "baz") OR "yay"
+  beaver --tagged foo,bar --tagged bar,baz --tagged yay production.log
 
 == License
 Copyright 2011 Jordan Hollinger
