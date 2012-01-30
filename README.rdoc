@@ -6,6 +6,7 @@ Beaver is a light DSL and command line utility for parsing Rails production logs
 * How many 500, 404, etc. errors yesterday? On what pages?
 * How many Widgets were created yesterday, and with what data?
 * Did anyone submit a form with the words "kill them all"? Yikes.
+* Rails 3.2 tagged logging is cool, but what's a good way to review them? (Beaver is, since version 1.2.0)
 
 Read the full documentation at {jordanhollinger.com/docs/beaver/}[http://jordanhollinger.com/docs/beaver/].
 For a full list of matchers available to "hit", see the Beaver::Dam class. For a full list of methods available inside a "hit" block, or to members
@@ -24,6 +25,10 @@ of the "hits" array in a "dam" block, see the Beaver::Request class.
   hit :help, :path => %r|^/help| do
     skip! if path == '/help/page_i_want_to_ignore'
     puts "#{ip} looked for help at #{path}"
+  end
+
+  hit :tagged => 'user 1' do
+    puts "user 1 was tagged at #{path} - other tags were: #{tags.join(', ')}"
   end
 
   hit :server_error, :status => (500..503)
@@ -67,7 +72,7 @@ Run ''beaver'' from the command line, passing in your beaver file and some logs:
 
 It's difficult to grep through a multi-line log format like Rails' and output each matching multi-line event (though I hear Google is working on a 'Context-Free Grep', which may help solve that). Until then, for Rails anyway, beaver is happy to step in.
 
-  beaver --path="/widgets" --method=post,put /var/www/rails-app/log/production.log
+  beaver --path="/widgets" --method=post,put --tagged=tag1,tag2 /var/www/rails-app/log/production.log
 
 Or format the output to a single line:
 
@@ -103,6 +108,41 @@ HTTP status codes. For example, your failed logins are probably returning
 200 when they should arguably be returning 400 or 401. It's easy to do, and very useful to Beaver.
 
   render :action => :login, :status => 401
+
+== Complex tag querying
+Beaver supports complex Rails Tagged Logger tag quering, in both DSL and command-line modes.
+
+=== DSL
+In short, the innermost level uses AND. If there is an outer level, it uses OR. Passing more than two levels is not supported.
+
+  # Matches any request tagged with "foo"
+  hit :tagged, :tagged => 'foo'
+  # Could also be written as ['foo']
+
+  # Matches any request tagged with "foo" AND "bar"
+  hit :tagged_with_all, :tagged => 'foo, bar'
+  # Could also be written ['foo', 'bar']
+
+  # Matches any request tagged with "foo" OR "bar"
+  hit :tagged_with_any, :tagged => [['foo'], ['bar']]
+
+  # Matches any request tagged with ("foo" AND "bar") OR ("bar" AND "baz") OR "yay"
+  hit :tagged_and_or_and_or, :tagged => [['foo', 'foop'], ['bar', 'baz'], ['yay']]
+  # Could also be written ['foo, foop', 'bar, baz', 'yay']
+
+=== Command-line
+
+  # Matches any request tagged with "foo"
+  beaver --tagged foo production.log
+
+  # Matches any request tagged with "foo" AND "bar"
+  beaver --tagged foo,bar production.log
+
+  # Matches any request tagged with "foo" OR "bar"
+  beaver --tagged foo --tagged bar production.log
+
+  # Matches any request tagged with ("foo" AND "foop") OR ("bar" AND "baz") OR "yay"
+  beaver --tagged foo,foop --taged bar,baz --tagged yay production.log
 
 == License
 Copyright 2011 Jordan Hollinger

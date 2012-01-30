@@ -15,6 +15,8 @@ module Beaver
       REGEX_IP = /" for (\d+[\d.]+) at /
       REGEX_FORMAT = /Processing by .+ as (\w+)$/
       REGEX_MS = / in (\d+)ms/
+      REGEX_TAGS = /^(\[.+\] )+/
+      REGEX_TAG = /\[([^\]]+)\] /
       # Depending on the version of Rails, the time format may be wildly different
       REGEX_TIME = / at ([a-z0-9:\+\- ]+)$/i
 
@@ -104,6 +106,26 @@ module Beaver
       def parse_time
         m = REGEX_TIME.match(@lines)
         m ? Time.parse(m.captures.first) : nil
+      end
+
+      # Parses and returns an array of tags string associated with the request
+      def parse_tags_str
+        t = REGEX_TAGS.match(@lines)
+        t ? t.captures.first : nil
+      end
+
+      # Parses and returns an array of tags associated with the request
+      def parse_tags
+        t = tags_str
+        if t
+          tags = t.scan(REGEX_TAG)
+          tags.flatten!
+          tags.uniq!
+          tags.map! &:downcase
+          tags
+        else
+          []
+        end
       end
     end
   end

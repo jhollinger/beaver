@@ -1,3 +1,8 @@
+** RELEASE 1.2.0 (?) **
+
+* Updates the the parser so that Rails's tagged logging doesn't break it
+* Added DSL and command-line support for filtering Rails logs by tag(s)
+
 ** RELEASE 1.1.0 (12/8/2011) **
 
 * Ability to parse log content from pipes and stdin

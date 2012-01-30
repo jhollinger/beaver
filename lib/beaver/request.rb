@@ -100,6 +100,16 @@ module Beaver
       @time ||= parse_time
     end
 
+    # Returns the tags string associated with the request (e.g. "[tag1] [tag2] ")
+    def tags_str
+      @tags_str ||= parse_tags_str
+    end
+
+    # Returns an array of tags associated with the request
+    def tags
+      @tags ||= parse_tags
+    end
+
     # When called inside of a Beaver::Dam#hit block, this Request will *not* be matched.
     def skip!
       throw :skip
@@ -179,6 +189,16 @@ module Beaver
 
     # Parses and returns the time at which the request was made
     def parse_time
+      nil
+    end
+
+    # Parses and returns the tags string associated with the request (e.g. "[tag1] [tag2] ")
+    def parse_tags_str
+      nil
+    end
+
+    # Parses and returns any tags associated with the request
+    def parse_tags
       nil
     end
   end

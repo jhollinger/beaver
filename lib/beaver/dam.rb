@@ -31,7 +31,9 @@ module Beaver
   #  :params_str => A regular expressing matching the Parameters string
   # 
   #  :params => A Hash of Symbol=>String/Regexp pairs: {:username => 'bob', :email => /@gmail\.com$/}. All must match.
-  #
+  # 
+  #  :tagged => A comma-separated String or Array of Rails Tagged Logger tags. If you specify multiple tags, a request must have *all* of them.
+  # 
   #  :match => A "catch-all" Regex that will be matched against the entire request string
   # 
   # The last argument may be a block, which will be called everytime this Dam is hit.
@@ -47,11 +49,11 @@ module Beaver
 
     # Name should be a unique symbol. Matchers is an options Hash. The callback will be evauluated within
     # the context of a Beaver::Request.
-    def initialize(name, matchers, &callback)
+    def initialize(name, matchers={}, &callback)
       @name = name
       @callback = callback
       @hits = []
-      set_matchers(matchers)
+      build matchers
     end
 
     # Returns an array of IP address that hit this Dam.
@@ -78,11 +80,32 @@ module Beaver
       return false unless @match_on.nil? or @match_on == request.date
       return false unless @match_params_str.nil? or @match_params_str =~ request.params_str
       return false unless @match_r.nil? or @match_r =~ request.to_s
+      if @deep_tag_match
+        return false unless @match_tags.nil? or (@match_tags.any? and request.tags_str and deep_matching_tags(@match_tags, request.tags))
+      else
+        return false unless @match_tags.nil? or (@match_tags.any? and request.tags_str and (@match_tags - request.tags).empty?)
+      end
       return false unless @match_params.nil? or matching_hashes?(@match_params, request.params)
       return true
     end
 
     private
+
+    # Matches tags recursively
+    def deep_matching_tags(matchers, tags)
+      all_tags_matched = nil
+      any_arrays_matched = false
+      for m in matchers
+        if m.is_a? Array
+          matched = deep_matching_tags m, tags
+          any_arrays_matched = true if matched
+        else
+          matched = tags.include? m
+          all_tags_matched = (matched && all_tags_matched != false) ? true : false
+        end
+      end
+      return (all_tags_matched or any_arrays_matched)
+    end
 
     # Recursively compares to Hashes. If all of Hash A is in Hash B, they match.
     def matching_hashes?(a,b)
@@ -107,8 +130,10 @@ module Beaver
       end
     end
 
+    public
+
     # Parses and checks the validity of the matching options passed to the Dam.
-    def set_matchers(matchers)
+    def build(matchers)
       if matchers[:path].respond_to? :===
         @match_path = matchers[:path]
       else
@@ -192,10 +217,34 @@ module Beaver
         else raise ArgumentError, "Params must be a String or a Regexp (it's a #{matchers[:params].class.name})"
       end if matchers[:params]
 
+      if matchers[:tagged]
+        @match_tags = parse_tag_matchers(matchers[:tagged])
+        @deep_tag_match = @match_tags.any? { |t| t.is_a? Array }
+      end
+
       case matchers[:match].class.name
         when Regexp.name then @match_r = matchers[:match]
         else raise ArgumentError, "Match must be a Regexp (it's a #{matchers[:match].class.name})"
       end if matchers[:match]
+
+      self
+    end
+
+    private
+
+    # Recursively parses a tag match pattern
+    def parse_tag_matchers(matcher)
+      if matcher.is_a? String
+        matcher.split(',').map { |t| t.strip.downcase }.uniq
+      elsif matcher.is_a? Array
+        matcher.map! do |m|
+          if m.is_a?(Array) or (m.is_a?(String) and m =~ /,/)
+            parse_tag_matchers(m)
+          else m; end
+        end
+      else
+        raise ArgumentError, "tagged must be a String or Array (it's a #{matcher.class.name})"
+      end
     end
   end
 end
