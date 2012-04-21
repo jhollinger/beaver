@@ -25,6 +25,7 @@ o = OptionParser.new do |opts|
   opts.on('--yesterday', 'Alias to --on=-1') { matchers[:on] = Date.today-1 }
   opts.on('--regex REGEX', 'A regex string to be matched against the entire request') { |r| matchers[:match] = Regexp.new(r, Regexp::IGNORECASE) }
   opts.on('--print FORMAT', 'Formatted request string, e.g. "%{ip} went to %{path} passing %{params[:email]}"') { |hit| options[:print] = hit }
+  opts.on('--tablize', 'Print the formatted string in a table') { options[:tablize] = true }
   opts.on('--stdin', 'Read log content from stdin (for typing/pasting)') { options[:tty] = true }
   opts.on('-v', '--version', 'Show version') { puts "beaver #{Beaver::VERSION}"; exit }
 end
@@ -44,8 +45,30 @@ Beaver.stream *args do
     beaver_files.each { |b| eval b }
   # Filter the logs through the CLI options
   else
-    hit :cli, matchers do
-      puts options[:print] ? eval('"'+options[:print].gsub(/%\{/, '#{')+'"') : to_s << $/
+    # Format each entry
+    if options[:print]
+      hit :cli, matchers
+      dam :cli do
+        options[:print].gsub!(/%\{/, '#{')
+        arg_pattern = /#\{[^\}]+\}/
+        # Map each hit to an array of values
+        lines = hits.map do |hit|
+          options[:print].gsub(arg_pattern).map { |match| hit.instance_eval(%Q|"#{match}"|) rescue '?' }
+        end
+        # Make each column the same length
+        if options[:tablize]
+          max_sizes = lines.inject([0]*lines.first.size) do |sizes, vals|
+            vals.each_with_index { |val, i| sizes[i] = val.size if val.size > sizes[i] }; sizes
+          end
+          lines.map! { |vals| vals.each_with_index.map { |val, i| val.ljust(max_sizes[i]) } }
+        end
+        # Print each formatted line
+        text = options[:print].split arg_pattern
+        lines.each { |vals| puts text.map { |t| "#{t}#{vals.shift}" }.join }
+      end
+    # Print the entirety of each entry
+    else
+      hit :cli, matchers do puts to_s << $/ end
     end
   end
 end
