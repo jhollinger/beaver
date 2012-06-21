@@ -169,11 +169,8 @@ module Beaver
         if request
           request << line
         else
-          request = Request.for(line).new(line)
-        end
-        if request.bad?
-          request = nil
-          next
+          request = Request.for(line)
+          next if request.nil?
         end
         if request.completed?
           blk.call(request)

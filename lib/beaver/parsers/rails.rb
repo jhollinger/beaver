@@ -2,9 +2,6 @@ module Beaver
   module Parsers
     # This appears to work with Rails 3 logs
     class Rails < Request
-      # Tell the Request class to use this parser to parse logs
-      Request << self
-
       REGEX_MATCH = /^Started [A-Z]+/
       REGEX_METHOD = /^Started ([A-Z]+)/
       REGEX_METHOD_OVERRIDE = /"_method"=>"([A-Z]+)"/i

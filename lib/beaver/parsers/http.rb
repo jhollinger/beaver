@@ -2,9 +2,6 @@ module Beaver
   module Parsers
     # HTTP Common Log format
     class HTTP < Request
-      # Tell the Request class to use this parser to parse logs
-      Request << self
-
       # The Combined Log Format
       FORMAT = '%h %l %u %t \"%r\" %>s %b \"%{Referer}i\" \"%{User-agent}i\"'
       # The Combined Log Format as an array of symbols

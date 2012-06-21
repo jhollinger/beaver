@@ -10,15 +10,15 @@ module Beaver
     # Holds the Parser classes used to parser requests
     @types = []
 
-    # Add a child Request parser.
-    def self.<<(type)
-      @types << type
+    # Add a child Request parser
+    def self.inherited(klass)
+      @types << klass
     end
 
-    # Returns the correct Request parser class for the given log line. If one cannot be found,
-    # the BadRequest class is returned, which the caller will want to ignore.
+    # Returns a new Request object for the given log line, or nil if one cannot be found.
     def self.for(line)
-      @types.detect { |t| t.match? line } || BadRequest
+      klass = @types.detect { |t| t.match? line }
+      klass ? klass.new(line) : nil
     end
 
     # Returns true if the given line look like a request of this class
@@ -128,11 +128,5 @@ module Beaver
       #$stderr.puts "#{self.class.name} log entry does not have attribute \"#{method}\""
       nil
     end
-  end
-
-  # Represents a BadRequest that no parser could figure out.
-  class BadRequest < Request
-    # Returns false, always
-    def good?; false; end
   end
 end
