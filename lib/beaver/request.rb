@@ -93,12 +93,6 @@ module Beaver
     # Returns true if the request has all the information it needs to be properly parsed
     def completed?; true; end
 
-    # Returns true if this is a "good" request.
-    def good?; true; end
-
-    # Returns true if this is a "bad" request.
-    def bad?; not good?; end
-
     protected
 
     # Parses and returns the request path
