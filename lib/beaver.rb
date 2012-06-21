@@ -4,6 +4,7 @@ rescue LoadError
   $stderr.puts "Zlib not available; compressed log files will be skipped."
 end
 
+require 'beaver/version'
 require 'beaver/utils'
 require 'beaver/beaver'
 require 'beaver/dam'

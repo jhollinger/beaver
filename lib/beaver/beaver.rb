@@ -1,5 +1,6 @@
 # Not specifically a performance analyzer (like https://github.com/wvanbergen/request-log-analyzer/wiki)
 # Rather, a DSL for finding out how people are using your Rails app (which could include performance).
+# Can also be used to parse/analyze HTTP access logs (Apache, Nginx, etc.)
 # 
 # Beaver.stream do
 #   hit :error, :status => (400..505) do
@@ -8,9 +9,6 @@
 # end
 # 
 module Beaver
-  MAJOR_VERSION, MINOR_VERSION, TINY_VERSION, PRE_VERSION = 1, 2, 0, nil
-  VERSION = [MAJOR_VERSION, MINOR_VERSION, TINY_VERSION, PRE_VERSION].compact.join '.'
-
   # Creates a new Beaver and immediately filters the log files. This should scale well
   # for even very large logs, at least when compared to Beaver#parse.
   def self.stream(*args, &blk)
@@ -25,7 +23,7 @@ module Beaver
     Beaver.new(*args, &blk).parse.filter
   end
 
-  # Alias to creating a new Beaver
+  # Alias to Beaver::Beaver.new
   def self.new(*args, &blk)
     Beaver.new(*args, &blk)
   end
