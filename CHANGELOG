@@ -1,3 +1,8 @@
+** RELEASE 1.3.0 (Pending) **
+
+* Added HTTP Combined Log parser (Apache, Nginx, etc.)
+* Minor bugfixes to :after and :before Date/Time options
+
 ** RELEASE 1.2.0 (01/30/2012) **
 
 * Updates the the parser so that Rails's tagged logging doesn't break it

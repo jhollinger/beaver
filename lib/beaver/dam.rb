@@ -2,7 +2,11 @@ module Beaver
   # A Dam "traps" certain Requests, using one or more matching options. A request must meet *all* of the 
   # matching options specified.
   # 
-  # Matchers:
+  # The last argument may be a block, which will be called everytime this Dam is hit.
+  # The block will be run in the context of the Request object. This can be used for 
+  # further checks or for reporting purposes.
+  # 
+  # Rails Matchers:
   #
   #  :path => String for exact match, or Regex
   #
@@ -36,9 +40,35 @@ module Beaver
   # 
   #  :match => A "catch-all" Regex that will be matched against the entire request string
   # 
-  # The last argument may be a block, which will be called everytime this Dam is hit.
-  # The block will be run in the context of the Request object. This can be used for 
-  # further checks or for reporting purposes.
+  # HTTP Matchers:
+  #
+  #  :path => String for exact match, or Regex
+  #
+  #  :method => A Symbol of :get, :post, :put or :delete, or any array of any (reads the magic _method field if present)
+  # 
+  #  :status => A Fixnum like 404 or a Range like (500..503)
+  # 
+  #  :ip => String for exact match, or Regex
+  #
+  #  :before => Date or Time for which the request must have ocurred before
+  # 
+  #  :after => Date or Time for which the request must have ocurred after
+  # 
+  #  :on => Date - the request must have ocurred on this date
+  # 
+  #  :params_str => A regular expressing matching the Parameters string
+  # 
+  #  :size => A Fixnum matching the response size in bytes
+  # 
+  #  :size_lt => A Fixnum matching the maximum response size in bytes
+  # 
+  #  :size_gt => A Fixnum matching the minimum response size in bytes
+  # 
+  #  :referer|:referrer => String for exact match, or Regex
+  # 
+  #  :user_agent => String for exact match, or Regex
+  #
+  #  :match => A "catch-all" Regex that will be matched against the entire log line
   class Dam
     # The symbol name of this Beaver::Dam
     attr_reader :name
@@ -65,6 +95,8 @@ module Beaver
     def matches?(request)
       return false if request.final?
       return false unless @match_path.nil? or @match_path === request.path
+      return false unless @match_referer.nil? or @match_referer === request.referer
+      return false unless @match_user_agent.nil? or @match_user_agent === request.user_agent
       return false unless @match_longer.nil? or @match_longer < request.ms
       return false unless @match_shorter.nil? or @match_shorter > request.ms
       return false unless @match_method_s.nil? or @match_method_s == request.method
@@ -75,10 +107,15 @@ module Beaver
       return false unless @match_ip.nil? or @match_ip === request.ip
       return false unless @match_format_s.nil? or @match_format_s == request.format
       return false unless @match_format_a.nil? or @match_format_a.include? request.format
-      return false unless @match_before.nil? or @match_before > request.time
-      return false unless @match_after.nil? or @match_after < request.time
+      return false unless @match_before_time.nil? or @match_before_time > request.time
+      return false unless @match_before_date.nil? or @match_before_date > request.date
+      return false unless @match_after_time.nil? or @match_after_time < request.time
+      return false unless @match_after_date.nil? or @match_after_date < request.date
       return false unless @match_on.nil? or @match_on == request.date
       return false unless @match_params_str.nil? or @match_params_str =~ request.params_str
+      return false unless @match_size.nil? or @match_size == request.size
+      return false unless @match_size_lt.nil? or request.size < @match_size_lt
+      return false unless @match_size_gt.nil? or request.size > @match_size_gt
       return false unless @match_r.nil? or @match_r =~ request.to_s
       if @deep_tag_match
         return false unless @match_tags.nil? or (@match_tags.any? and request.tags_str and deep_matching_tags(@match_tags, request.tags))
@@ -133,95 +170,145 @@ module Beaver
     public
 
     # Parses and checks the validity of the matching options passed to the Dam.
+    # XXX Yikes this is long and ugly...
     def build(matchers)
+      # Match path
       if matchers[:path].respond_to? :===
         @match_path = matchers[:path]
       else
         raise ArgumentError, "Path must respond to the '===' method; try a String or a Regexp (it's a #{matchers[:path].class.name})"
       end if matchers[:path]
 
+      # Match HTTP referer
+      referer = matchers[:referer] || matchers[:referrer]
+      if referer.respond_to? :===
+        @match_referer = referer
+      else
+        raise ArgumentError, "Referrer must respond to the '===' method; try a String or a Regexp (it's a #{referer.class.name})"
+      end if referer
+
+      # Match request method
       case
         when matchers[:method].is_a?(Symbol) then @match_method_s = matchers[:method].to_s.downcase.to_sym
         when matchers[:method].is_a?(Array) then @match_method_a = matchers[:method].map { |m| m.to_s.downcase.to_sym }
         else raise ArgumentError, "Method must be a Symbol or an Array (it's a #{matchers[:method].class.name})"
       end if matchers[:method]
 
+      # Match Rails controller
       if matchers[:controller].respond_to? :===
         @match_controller = matchers[:controller]
       else
         raise ArgumentError, "Controller must respond to the '===' method; try a String or a Regexp (it's a #{matchers[:controller].class.name})"
       end if matchers[:controller]
 
+      # Match Rails controller action
       if matchers[:action].respond_to? :=== or matchers[:action].is_a? Symbol
         @match_action = matchers[:action]
       else
         raise ArgumentError, "Action must respond to the '===' method or be a Symbol; try a String, Symbol or a Regexp (it's a #{matchers[:action].class.name})"
       end if matchers[:action]
 
+      # Match response status
       case matchers[:status].class.name
         when Fixnum.name, Range.name then @match_status = matchers[:status]
         else raise ArgumentError, "Status must be a Fixnum or a Range (it's a #{matchers[:status].class.name})"
       end if matchers[:status]
 
+      # Match request IP
       if matchers[:ip].respond_to? :===
         @match_ip = matchers[:ip]
       else
         raise ArgumentError, "IP must respond to the '===' method; try a String or a Regexp (it's a #{matchers[:ip].class.name})"
       end if matchers[:ip]
 
+      # Match Rails' response format
       case
         when matchers[:format].is_a?(Symbol) then @match_format_s = matchers[:format].to_s.downcase.to_sym
         when matchers[:format].is_a?(Array) then @match_format_a = matchers[:format].map { |f| f.to_s.downcase.to_sym }
         else raise ArgumentError, "Format must be a Symbol or an Array (it's a #{matchers[:format].class.name})"
       end if matchers[:format]
 
+      # Match Rails' response time (at least)
       case matchers[:longer_than].class.name
         when Fixnum.name then @match_longer = matchers[:longer_than]
         else raise ArgumentError, "longer_than must be a Fixnum (it's a #{matchers[:longer_than].class.name})"
       end if matchers[:longer_than]
 
+      # Match Rails' response time (at most)
       case matchers[:shorter_than].class.name
         when Fixnum.name then @match_shorter = matchers[:shorter_than]
         else raise ArgumentError, "shorter_than must be a Fixnum (it's a #{matchers[:shorter_than].class.name})"
       end if matchers[:shorter_than]
 
-      @match_before = if matchers[:before].is_a? Time
-        matchers[:before]
+      # Match HTTP response size
+      case matchers[:size].class.name
+        when Fixnum.name then @match_size = matchers[:size]
+        else raise ArgumentError, "size must be a Fixnum (it's a #{matchers[:size].class.name})"
+      end if matchers[:size]
+
+      # Match HTTP response size (at most)
+      case matchers[:size_lt].class.name
+        when Fixnum.name then @match_size_lt = matchers[:size_lt]
+        else raise ArgumentError, "size must be a Fixnum (it's a #{matchers[:size_lt].class.name})"
+      end if matchers[:size_lt]
+
+      # Match HTTP response size (at least)
+      case matchers[:size_gt].class.name
+        when Fixnum.name then @match_size_gt = matchers[:size_gt]
+        else raise ArgumentError, "size must be a Fixnum (it's a #{matchers[:size_gt].class.name})"
+      end if matchers[:size_gt]
+
+      # Match before a request date
+      if matchers[:before].is_a? Time
+        @match_before_time = matchers[:before]
       elsif matchers[:before].is_a? Date
-        Utils::NormalizedTime.new(matchers[:before].year, matchers[:before].month, matchers[:before].day)
+        @match_before_date = matchers[:before]
       else
         raise ArgumentError, "before must be a Date or Time (it's a #{matchers[:before].class.name})"
       end if matchers[:before]
 
-      @match_after = if matchers[:after].is_a? Time
-        matchers[:after]
+      # Match after a request date or datetime
+      if matchers[:after].is_a? Time
+        @match_after_time = matchers[:after]
       elsif matchers[:after].is_a? Date
-        Utils::NormalizedTime.new(matchers[:after].year, matchers[:after].month, matchers[:after].day)
+        @match_after_date = matchers[:after]
       else
         raise ArgumentError, "after must be a Date or Time (it's a #{matchers[:after].class.name})"
       end if matchers[:after]
 
+      # Match a request date
       if matchers[:on].is_a? Date
         @match_on = matchers[:on]
       else
         raise ArgumentError, "on must be a Date (it's a #{matchers[:on].class.name})"
       end if matchers[:on]
 
+      # Match request URL parameters string
       case matchers[:params_str].class.name
         when Regexp.name then @match_params_str = matchers[:params_str]
         else raise ArgumentError, "Params String must be a Regexp (it's a #{matchers[:params_str].class.name})"
       end if matchers[:params_str]
 
+      # Match request URL parameters Hash
       case matchers[:params].class.name
         when Hash.name then @match_params = matchers[:params]
         else raise ArgumentError, "Params must be a String or a Regexp (it's a #{matchers[:params].class.name})"
       end if matchers[:params]
 
+      # Match Rails request tags
       if matchers[:tagged]
         @match_tags = parse_tag_matchers(matchers[:tagged])
         @deep_tag_match = @match_tags.any? { |t| t.is_a? Array }
       end
 
+      # Match HTTP user agent string
+      if matchers[:user_agent].respond_to? :===
+        @match_user_agent = matchers[:user_agent]
+      else
+        raise ArgumentError, "User Agent must respond to the '===' method; try a String or a Regexp (it's a #{matchers[:user_agent].class.name})"
+      end if matchers[:user_agent]
+
+      # Match the entire log entry string
       case matchers[:match].class.name
         when Regexp.name then @match_r = matchers[:match]
         else raise ArgumentError, "Match must be a Regexp (it's a #{matchers[:match].class.name})"

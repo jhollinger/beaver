@@ -1,14 +1,22 @@
 require 'rspec'
 
 # Load Beaver
-require File.dirname(__FILE__) + '/../lib/beaver/utils'
-require File.dirname(__FILE__) + '/../lib/beaver/beaver'
-require File.dirname(__FILE__) + '/../lib/beaver/dam'
-require File.dirname(__FILE__) + '/../lib/beaver/request'
-require File.dirname(__FILE__) + '/../lib/beaver/parsers/rails'
+$LOAD_PATH.unshift File.dirname(__FILE__) + '/../lib/'
+require File.dirname(__FILE__) + '/../lib/beaver'
 
 RSpec.configure do |c|
   c.mock_with :rspec
 end
 
-LOG_FILES = File.dirname(__FILE__) + '/data/production.log*'
+RAILS_LOGS = File.dirname(__FILE__) + '/data/rails.log*'
+HTTP_LOGS = File.dirname(__FILE__) + '/data/http.log*'
+
+# Normalizes Time.new across Ruby 1.8 and 1.9. # Accepts the same arguments as Time.
+class NormalizedTime < Time
+  if RUBY_VERSION < '1.9'
+    def self.new(*args)
+      args.pop if args.last.is_a? String
+      local(*args)
+    end
+  end
+end

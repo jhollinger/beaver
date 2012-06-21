@@ -2,7 +2,7 @@ require 'yaml'
 require 'time'
 
 module Beaver
-  # Sundry utility methods and classes for use by Beaver
+  # Sundry utility methods for use by Beaver
   module Utils
     LBRACE, RBRACE = '{', '}'
     LBRACKET, RBRACKET = '[', ']'
@@ -98,18 +98,6 @@ module Beaver
         when /^[0-9]{4}-[0-9]{2}-[0-9]{2}$/ then Date.parse(date)
         when /^-\d+$/ then Date.today + date.to_i
         else nil
-      end
-    end
-
-    # Normalizes Time.new across Ruby 1.8 and 1.9.
-    # Accepts the same arguments as Time.
-    class NormalizedTime < ::Time
-      if RUBY_VERSION < '1.9'
-        # Returns a new NormalizedTime object.
-        def self.new(*args)
-          args.pop if args.last.is_a? String
-          local(*args)
-        end
       end
     end
   end

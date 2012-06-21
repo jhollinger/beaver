@@ -3,7 +3,7 @@ require File.dirname(__FILE__) + '/spec_helper'
 describe Beaver do
   describe 'Tags' do
     before do
-      @beaver = Beaver.new(LOG_FILES)
+      @beaver = Beaver.new(RAILS_LOGS)
       @beaver.parse
     end
 

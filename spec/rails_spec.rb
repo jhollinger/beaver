@@ -2,7 +2,7 @@ require File.dirname(__FILE__) + '/spec_helper'
 
 describe Beaver do
   before do
-    @beaver = Beaver.new(LOG_FILES)
+    @beaver = Beaver.new(RAILS_LOGS)
     @beaver.parse
   end
 
@@ -129,7 +129,7 @@ describe Beaver do
   it "should parse the request time" do
     dam = @beaver.hit :times, :method => :put
     @beaver.filter
-    dam.hits.first.time.should == ::Beaver::Utils::NormalizedTime.new(2011, 8, 30, 10, 7, 40, '-04:00')
+    dam.hits.first.time.should == NormalizedTime.new(2011, 8, 30, 10, 7, 40, '-04:00')
   end
 
   it "should match before the request time" do
@@ -139,7 +139,7 @@ describe Beaver do
   end
 
   it "should match after the request time" do
-    dam = @beaver.hit :times, :after => ::Beaver::Utils::NormalizedTime.new(2011, 8, 1, 0, 0, 0)
+    dam = @beaver.hit :times, :after => NormalizedTime.new(2011, 8, 1, 0, 0, 0)
     @beaver.filter
     dam.hits.size.should == 4
   end

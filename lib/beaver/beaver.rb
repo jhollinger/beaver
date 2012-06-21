@@ -168,12 +168,15 @@ module Beaver
       request = nil
       # Parses a line into part of a request
       parse_it = lambda { |line|
-        request ||= Request.for(line).new
+        if request
+          request << line
+        else
+          request = Request.for(line).new(line)
+        end
         if request.bad?
           request = nil
           next
         end
-        request << line
         if request.completed?
           blk.call(request)
           request = nil

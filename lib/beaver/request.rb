@@ -15,29 +15,29 @@ module Beaver
       @types << type
     end
 
-    # Returns the correct Request parser class for the given log lines. If one cannot be found,
+    # Returns the correct Request parser class for the given log line. If one cannot be found,
     # the BadRequest class is returned, which the caller will want to ignore.
-    def self.for(lines)
-      @types.select { |t| t.match? lines }.first || BadRequest
+    def self.for(line)
+      @types.detect { |t| t.match? line } || BadRequest
     end
 
-    # Accepts a String of log lines, presumably ones which belong to a single request.
-    def initialize(lines=nil)
-      @lines = lines || ''
+    # Returns true if the given line look like a request of this class
+    def self.match?(line)
+      self::REGEX_MATCH =~ line
+    end
+
+    # Accepts a String of log data, presumably ones which belong to a single request.
+    def initialize(data=nil)
+      @data = data || ''
       @final = false
     end
 
-    # Returns the log lines that make up this Request.
-    def to_s; @lines; end
-
-    # Returns true if this is a "good" request.
-    def good?; true; end
-    # Returns true if this is a "bad" request.
-    def bad?; not good?; end
+    # Returns the log data that make up this Request.
+    def to_s; @data; end
 
     # Append a log line
     def <<(line)
-      @lines << line
+      @data << line
     end
 
     # Returns the request path
@@ -50,16 +50,6 @@ module Beaver
       @method ||= parse_method
     end
 
-    # Returns the class name of the Rails controller that handled the request
-    def controller
-      @controller ||= parse_controller
-    end
-
-    # Returns the class name of the Rails controller action that handled the request
-    def action
-      @action ||= parse_action
-    end
-
     # Returns the response status
     def status
       @status ||= parse_status
@@ -70,24 +60,9 @@ module Beaver
       @params_str ||= parse_params_str
     end
 
-    # Returns the request parameters as a Hash (this is more expensive than Request#params_str)
-    def params
-      @params ||= parse_params
-    end
-
     # Returns the IP address of the request
     def ip
       @ip ||= parse_ip
-    end
-
-    # Returns the responses format (html, json, etc)
-    def format
-      @format ||= parse_format
-    end
-
-    # Returns the number of milliseconds it took for the request to complete
-    def ms
-      @ms ||= parse_ms
     end
 
     # Returns the date on which the request was made
@@ -98,16 +73,6 @@ module Beaver
     # Returns the time at which the request was made
     def time
       @time ||= parse_time
-    end
-
-    # Returns the tags string associated with the request (e.g. "[tag1] [tag2] ")
-    def tags_str
-      @tags_str ||= parse_tags_str
-    end
-
-    # Returns an array of tags associated with the request
-    def tags
-      @tags ||= parse_tags
     end
 
     # When called inside of a Beaver::Dam#hit block, this Request will *not* be matched.
@@ -126,79 +91,41 @@ module Beaver
     end
 
     # Returns true if the request has all the information it needs to be properly parsed
-    def completed?
-      true
-    end
+    def completed?; true; end
+
+    # Returns true if this is a "good" request.
+    def good?; true; end
+
+    # Returns true if this is a "bad" request.
+    def bad?; not good?; end
 
     protected
 
     # Parses and returns the request path
-    def parse_path
-      BLANK_STR
-    end
+    def parse_path; BLANK_STR; end
 
     # Parses and returns the request method
-    def parse_method
-      :unknown
-    end
-
-    # Parses the name of the Rails controller which handled the request
-    def parse_controller
-      BLANK_STR
-    end
-
-    # Parses the name of the Rails controller action which handled the request
-    def parse_action
-      :unknown
-    end
+    def parse_method; :unknown; end
 
     # Parses and returns the response status
-    def parse_status
-      0
-    end
+    def parse_status; 0; end
 
     # Parses and returns the request params as a String
-    def parse_params_str
-      BLANK_STR
-    end
-
-    # Parses and returns the request params as a Hash
-    def parse_params
-      BLANK_HASH
-    end
+    def parse_params_str; BLANK_STR; end
 
     # Parses and returns the request IP address
-    def parse_ip
-      BLANK_STR
-    end
-
-    # Parses and returns the respones format
-    def parse_format
-      :unknown
-    end
-
-    # Parses and returns the number of milliseconds it took for the request to complete
-    def parse_ms
-      0
-    end
+    def parse_ip; BLANK_STR; end
 
     # Parses and returns the date on which the request was made
-    def parse_date
-      nil
-    end
+    def parse_date; nil; end
 
     # Parses and returns the time at which the request was made
-    def parse_time
-      nil
-    end
+    def parse_time; nil; end
 
-    # Parses and returns the tags string associated with the request (e.g. "[tag1] [tag2] ")
-    def parse_tags_str
-      nil
-    end
+    private
 
-    # Parses and returns any tags associated with the request
-    def parse_tags
+    def method_missing(method)
+      #$stderr.puts "#{self.class.name} log entry does not have attribute \"#{method}\""
       nil
     end
   end

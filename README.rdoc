@@ -1,6 +1,6 @@
 == Beaver, chewing through logs to make something useful
 
-Beaver is a light DSL and command line utility for parsing Rails production logs back into usable data. It answers questions like:
+Beaver is a light DSL and command line utility for parsing HTTP and Rails production logs back into usable data. It answers questions like:
 
 * How many failed logins have there been today? Were they for the same user? From the same IP?
 * How many 500, 404, etc. errors yesterday? On what pages?
@@ -15,7 +15,7 @@ of the "hits" array in a "dam" block, see the Beaver::Request class.
 == Installation
   [sudo] gem install beaver
 
-== Run a DSL file with beaver
+== Use beaver with a DSL file
   hit :failed_login, :method => :post, :path => '/login', :status => 401
 
   hit :new_widgets, :path => '/widgets', :method => :post, :status => 302 do
@@ -54,21 +54,18 @@ Run ''beaver'' from the command line, passing in your beaver file and some logs:
 
   beaver my_beaver_file.rb /var/www/rails-app/log/production.log*
 
-== Use your own Beaver
+== Use beaver as a library
   require 'rubygems'
   require 'beaver'
 
-  # Logs from the last day or so
-  logs = ['/var/www/rails-app/log/production.log',
-          '/var/www/rails-app/log/production.log.1']
-
-  # Parse the logs, but only include requests from yesterday
-  Beaver.stream logs, :on => Date.today-1 do
-    hit :failed_login, :method => :post, :path => '/login', :status => 401
-    ...
+  beaver = Beaver.new('/path/to/httpd/access_logs*')
+  beaver.hit :failed_logins, :method => :post, :path => '/login', :status => 401
+  beaver.dam :failed_logins do
+    puts "#{hits.size} failed logins!"
   end
+  beaver.stream
 
-== Beavers love Unix
+== Use beaver as part of the *nix toolchain
 
 It's difficult to grep through a multi-line log format like Rails' and output each matching multi-line event (though I hear Google is working on a 'Context-Free Grep', which may help solve that). Until then, for Rails anyway, beaver is happy to step in.
 
@@ -78,13 +75,17 @@ Or format the output to a single line:
 
   beaver --controller=widgets /var/www/rails-app/log/production.log --print "%{ip} hit %{action} using %{method}"
 
-Also accepts log content from pipes and stdin (might be a bit faster):
+Also accepts log content from pipes and stdin. Use it to filter log files:
 
   cat /var/www/rails-app/log/production.log* | beaver --action=edit
 
   beaver --action=edit < /var/www/rails-app/log/production.log.1 
 
   beaver --action=edit --stdin
+
+Or for dead-simple real-time event monitoring:
+
+  tail -f /var/log/nginx/access_log | beaver www.rb
 
 See all options with 'beaver --help'.
 
@@ -111,7 +112,7 @@ HTTP status codes. For example, your failed logins are probably returning
 
 A detailed description of each status code and when to use it can be found at {www.w3.org}[http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html].
 
-== Complex tag querying
+== Complex Rails tag querying
 Beaver supports complex Rails Tagged Logger tag quering, in both DSL and command-line modes.
 
 === DSL

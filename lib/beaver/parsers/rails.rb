@@ -5,6 +5,7 @@ module Beaver
       # Tell the Request class to use this parser to parse logs
       Request << self
 
+      REGEX_MATCH = /^Started [A-Z]+/
       REGEX_METHOD = /^Started ([A-Z]+)/
       REGEX_METHOD_OVERRIDE = /"_method"=>"([A-Z]+)"/i
       REGEX_CONTROLLER = /Processing by (\w+Controller)#/
@@ -20,104 +21,44 @@ module Beaver
       # Depending on the version of Rails, the time format may be wildly different
       REGEX_TIME = / at ([a-z0-9:\+\- ]+)$/i
 
-      # Returns true if the given lines look like a Rails request
-      def self.match?(lines)
-        REGEX_METHOD =~ lines
-      end
-
-      # Returns true, always
-      def valid?; true; end
-
       # Returns true if/when we have the final line of the multi-line Rails request
       def completed?
-        REGEX_COMPLETED =~ @lines
+        REGEX_COMPLETED =~ @data
       end
 
-      protected
-
-      # Parses and returns the request path
-      def parse_path
-        m = REGEX_PATH.match(@lines)
-        m ? m.captures.first : BLANK_STR
+      # Returns the class name of the Rails controller that handled the request
+      def controller
+        @controller ||= REGEX_CONTROLLER.match(@data) ? $1 : BLANK_STR
       end
 
-      # Parses and returns the request method
-      def parse_method
-        m = REGEX_METHOD_OVERRIDE.match(@lines)
-        m = REGEX_METHOD.match(@lines) if m.nil?
-        m ? m.captures.first.downcase.to_sym : :unknown
+      # Returns the class name of the Rails controller action that handled the request
+      def action
+        @action ||= REGEX_ACTION.match(@data) ? $1.to_sym : :unknown
       end
 
-      # Parses the name of the Rails controller which handled the request
-      def parse_controller
-        c = REGEX_CONTROLLER.match(@lines) if c.nil?
-        c ? c.captures.first : BLANK_STR
+      # Returns the responses format (html, json, etc)
+      def format
+        @format ||= REGEX_FORMAT.match(@data) ? $1.downcase.to_sym : :unknown
       end
 
-      # Parses the name of the Rails controller action which handled the request
-      def parse_action
-        a = REGEX_ACTION.match(@lines) if a.nil?
-        a ? a.captures.first.to_sym : :unknown
+      # Returns the number of milliseconds it took for the request to complete
+      def ms
+        @ms ||= REGEX_MS.match(@data) ? $1.to_i : 0
       end
 
-      # Parses and returns the response status
-      def parse_status
-        m = REGEX_COMPLETED.match(@lines)
-        m ? m.captures.first.to_i : 0
+      # Returns the request parameters as a Hash (this is more expensive than Request#params_str)
+      def params
+        @params ||= params_str.empty? ? BLANK_HASH : Utils.str_to_hash(params_str)
       end
 
-      # Parses and returns the request parameters as a String
-      def parse_params_str
-        m = REGEX_PARAMS_STR.match(@lines)
-        m ? m.captures.first : BLANK_STR
+      # Returns the tags string associated with the request (e.g. "[tag1] [tag2] ")
+      def tags_str
+        @tags_str ||= REGEX_TAGS.match(@data) ? $1 : nil
       end
 
-      # Parses and returns the request parameters as a Hash (relatively expensive)
-      def parse_params
-        p = params_str
-        p.empty? ? BLANK_HASH : Utils.str_to_hash(p)
-      end
-
-      # Parses and returns the request's IP address
-      def parse_ip
-        m = REGEX_IP.match(@lines)
-        m ? m.captures.first : BLANK_STR
-      end
-
-      # Parses and returns the respones format
-      def parse_format
-        m = REGEX_FORMAT.match(@lines)
-        m ? m.captures.first.to_s.downcase.to_sym : :unknown
-      end
-
-      # Parses and returns the number of milliseconds it took for the request to complete
-      def parse_ms
-        m = REGEX_MS.match(@lines)
-        m ? m.captures.first.to_i : 0
-      end
-
-      # Parses and returns the time at which the request was made
-      def parse_date
-        m = REGEX_TIME.match(@lines)
-        m ? Date.parse(m.captures.first) : nil
-      end
-
-      # Parses and returns the time at which the request was made
-      def parse_time
-        m = REGEX_TIME.match(@lines)
-        m ? Time.parse(m.captures.first) : nil
-      end
-
-      # Parses and returns an array of tags string associated with the request
-      def parse_tags_str
-        t = REGEX_TAGS.match(@lines)
-        t ? t.captures.first : nil
-      end
-
-      # Parses and returns an array of tags associated with the request
-      def parse_tags
-        t = tags_str
-        if t
+      # Returns an array of tags associated with the request
+      def tags
+        @tags ||= if t = tags_str
           tags = t.scan(REGEX_TAG)
           tags.flatten!
           tags.uniq!
@@ -126,6 +67,45 @@ module Beaver
         else
           []
         end
+      end
+
+      protected
+
+      # Parses and returns the request path
+      def parse_path
+        REGEX_PATH.match(@data) ? $1 : BLANK_STR
+      end
+
+      # Parses and returns the request method
+      def parse_method
+        m = REGEX_METHOD_OVERRIDE.match(@data)
+        m = REGEX_METHOD.match(@data) if m.nil?
+        m ? m.captures.first.downcase.to_sym : :unknown
+      end
+
+      # Parses and returns the response status
+      def parse_status
+        REGEX_COMPLETED.match(@data) ? $1.to_i : 0
+      end
+
+      # Parses and returns the request parameters as a String
+      def parse_params_str
+        REGEX_PARAMS_STR.match(@data) ? $1 : BLANK_STR
+      end
+
+      # Parses and returns the request's IP address
+      def parse_ip
+        REGEX_IP.match(@data) ? $1 : BLANK_STR
+      end
+
+      # Parses and returns the time at which the request was made
+      def parse_date
+        REGEX_TIME.match(@data) ? Date.parse($1) : nil
+      end
+
+      # Parses and returns the time at which the request was made
+      def parse_time
+        REGEX_TIME.match(@data) ? Time.parse($1) : nil
       end
     end
   end

@@ -10,3 +10,4 @@ require 'beaver/dam'
 require 'beaver/request'
 
 require 'beaver/parsers/rails'
+require 'beaver/parsers/http'
