@@ -69,7 +69,8 @@ Beaver.stream *args do
           lines.map! { |vals| vals.each_with_index.map { |val, i| val.ljust(max_sizes[i]) } }
         end
         # Print each formatted line
-        text = options[:print].split arg_pattern
+        text = options[:print].split(arg_pattern)
+        text << '' if text.empty?
         lines.each { |vals| puts text.map { |t| "#{t}#{vals.shift}" }.join }
       end
     # Print the entirety of each entry
