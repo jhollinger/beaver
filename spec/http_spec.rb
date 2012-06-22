@@ -42,14 +42,14 @@ describe Beaver do
     dam.hits.size.should == 6
   end
 
-  it "should parse and match the response size less than (in bytes)" do
-    dam = @beaver.hit :favicon, :size_lt => 777
+  it "should parse and match responses less than n bytes" do
+    dam = @beaver.hit :favicon, :smaller_than => 777
     @beaver.filter
     dam.hits.size.should == 11
   end
 
-  it "should parse and match the response size greater than (in bytes)" do
-    dam = @beaver.hit :favicon, :size_gt => 776
+  it "should parse and match responses larger than n bytes" do
+    dam = @beaver.hit :favicon, :bigger_than => 776
     @beaver.filter
     dam.hits.size.should == 15
   end

@@ -6,69 +6,51 @@ module Beaver
   # The block will be run in the context of the Request object. This can be used for 
   # further checks or for reporting purposes.
   # 
-  # Rails Matchers:
+  # Matchers:
   #
-  #  :path => String for exact match, or Regex
+  #  :path          Rails HTTP  String for exact match, or Regex
   #
-  #  :method => A Symbol of :get, :post, :put or :delete, or any array of any (reads the magic _method field if present)
+  #  :method        Rails HTTP  Symbol of :get, :post, :put or :delete, or any array of any (reads the magic _method field if present)
   # 
-  #  :controller => A String like 'FooController' or a Regex like /foo/i
+  #  :controller    Rails       String like 'FooController' or a Regex like /foo/i
   # 
-  #  :action => A String like 'index' or a Regex like /(index)|(show)/
+  #  :action        Rails       String like 'index' or a Regex like /(index)|(show)/
   #
-  #  :status => A Fixnum like 404 or a Range like (500..503)
+  #  :status        Rails HTTP  Fixnum like 404 or a Range like (500..503)
   # 
-  #  :ip => String for exact match, or Regex
+  #  :ip            Rails HTTP  String for exact match, or Regex
   #
-  #  :format => A symbol or array of symbols of response formats like :html, :json
+  #  :format        Rails       Symbol or array of symbols of response formats like :html, :json
   # 
-  #  :longer_than => Fixnum n. Matches any request which took longer than n milliseconds to complete.
+  #  :longer_than   Rails       Fixnum n. Matches any request which took longer than n milliseconds to complete.
   # 
-  #  :shorter_than => Fixnum n. Matches any request which took less than n milliseconds to complete.
+  #  :shorter_than  Rails       Fixnum n. Matches any request which took less than n milliseconds to complete.
   # 
-  #  :before => Date or Time for which the request must have ocurred before
+  #  :before        Rails HTTP  Date or Time for which the request must have ocurred before
   # 
-  #  :after => Date or Time for which the request must have ocurred after
+  #  :after         Rails HTTP  Date or Time for which the request must have ocurred after
   # 
-  #  :on => Date - the request must have ocurred on this date
+  #  :on            Rails HTTP  Date - the request must have ocurred on this date
   # 
-  #  :params_str => A regular expressing matching the Parameters string
+  #  :params_str    Rails HTTP  Regular expressing matching the Parameters string
   # 
-  #  :params => A Hash of Symbol=>String/Regexp pairs: {:username => 'bob', :email => /@gmail\.com$/}. All must match.
+  #  :params        Rails       Hash of Symbol=>String/Regexp pairs: {:username => 'bob', :email => /@gmail\.com$/}. All must match.
   # 
-  #  :tagged => A comma-separated String or Array of Rails Tagged Logger tags. If you specify multiple tags, a request must have *all* of them.
+  #  :tagged        Rails       Comma-separated String or Array of Rails Tagged Logger tags. If you specify multiple tags, a request must have *all* of them.
   # 
-  #  :match => A "catch-all" Regex that will be matched against the entire request string
+  #  :size                HTTP  Fixnum matching the response size in bytes
   # 
-  # HTTP Matchers:
-  #
-  #  :path => String for exact match, or Regex
-  #
-  #  :method => A Symbol of :get, :post, :put or :delete, or any array of any (reads the magic _method field if present)
+  #  :smaller_than        HTTP  Fixnum matching the maximum response size in bytes
   # 
-  #  :status => A Fixnum like 404 or a Range like (500..503)
+  #  :larger_than         HTTP  Fixnum matching the minimum response size in bytes
   # 
-  #  :ip => String for exact match, or Regex
-  #
-  #  :before => Date or Time for which the request must have ocurred before
+  #  :referer             HTTP  String for exact match, or Regex
   # 
-  #  :after => Date or Time for which the request must have ocurred after
+  #  :referrer            HTTP  Alias to :referer
   # 
-  #  :on => Date - the request must have ocurred on this date
+  #  :user_agent          HTTP  String for exact match, or Regex
   # 
-  #  :params_str => A regular expressing matching the Parameters string
-  # 
-  #  :size => A Fixnum matching the response size in bytes
-  # 
-  #  :size_lt => A Fixnum matching the maximum response size in bytes
-  # 
-  #  :size_gt => A Fixnum matching the minimum response size in bytes
-  # 
-  #  :referer|:referrer => String for exact match, or Regex
-  # 
-  #  :user_agent => String for exact match, or Regex
-  #
-  #  :match => A "catch-all" Regex that will be matched against the entire log line
+  #  :match         Rails HTTP  A "catch-all" Regex that will be matched against the entire request string
   class Dam
     # The symbol name of this Beaver::Dam
     attr_reader :name
@@ -247,16 +229,16 @@ module Beaver
       end if matchers[:size]
 
       # Match HTTP response size (at most)
-      case matchers[:size_lt].class.name
-        when Fixnum.name then @match_size_lt = matchers[:size_lt]
-        else raise ArgumentError, "size must be a Fixnum (it's a #{matchers[:size_lt].class.name})"
-      end if matchers[:size_lt]
+      case matchers[:smaller_than].class.name
+        when Fixnum.name then @match_size_lt = matchers[:smaller_than]
+        else raise ArgumentError, "size must be a Fixnum (it's a #{matchers[:smaller_than].class.name})"
+      end if matchers[:smaller_than]
 
       # Match HTTP response size (at least)
-      case matchers[:size_gt].class.name
-        when Fixnum.name then @match_size_gt = matchers[:size_gt]
-        else raise ArgumentError, "size must be a Fixnum (it's a #{matchers[:size_gt].class.name})"
-      end if matchers[:size_gt]
+      case matchers[:larger_than].class.name
+        when Fixnum.name then @match_size_gt = matchers[:larger_than]
+        else raise ArgumentError, "size must be a Fixnum (it's a #{matchers[:larger_than].class.name})"
+      end if matchers[:larger_than]
 
       # Match before a request date
       if matchers[:before].is_a? Time
