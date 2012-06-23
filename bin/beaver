@@ -47,31 +47,36 @@ Beaver.stream *args do
   tty! if options[:tty]
   # Filter the logs through the DSL files
   if beaver_files.any?
-    beaver_files.map! { |b| File.open(b, &:read) }
-    beaver_files.each { |b| eval b }
+    beaver_files.map { |b| File.open(b, &:read) }.each &method(:eval)
   # Filter the logs through the CLI options
   else
     # Format each entry
     if options[:print]
-      hit :cli, matchers
-      dam :cli do
-        options[:print].gsub!(/%\{/, '#{')
-        arg_pattern = /#\{[^\}]+\}/
-        # Map each hit to an array of values
-        lines = hits.map do |hit|
-          options[:print].gsub(arg_pattern).map { |match| hit.instance_eval(%Q|"#{match}"|) rescue '?' }
-        end
-        # Make each column the same length
+      options[:print].gsub!(/%\{/, '#{')
+      arg_pattern = /#\{[^\}]+\}/
+      text = options[:print].split(arg_pattern)
+      text << '' if text.empty?
+      lines = []
+
+      # Map each hit to an array of values
+      hit :cli, matchers do
+        vals = options[:print].gsub(arg_pattern).map { |match| self.instance_eval(%Q|"#{match}"|) rescue '?' }
         if options[:tablize]
+          lines << vals
+        else
+          puts text.map { |t| "#{t}#{vals.shift}" }.join
+        end
+      end
+
+      # Make each column the same length
+      if options[:tablize]
+        dam :cli do
           max_sizes = lines.inject([0]*lines.first.size) do |sizes, vals|
             vals.each_with_index { |val, i| sizes[i] = val.size if val.size > sizes[i] }; sizes
           end
           lines.map! { |vals| vals.each_with_index.map { |val, i| val.ljust(max_sizes[i]) } }
+          lines.each { |vals| puts text.map { |t| "#{t}#{vals.shift}" }.join }
         end
-        # Print each formatted line
-        text = options[:print].split(arg_pattern)
-        text << '' if text.empty?
-        lines.each { |vals| puts text.map { |t| "#{t}#{vals.shift}" }.join }
       end
     # Print the entirety of each entry
     else
