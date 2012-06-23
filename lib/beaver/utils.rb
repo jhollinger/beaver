@@ -95,6 +95,7 @@ module Beaver
     # Returns an array of arrays of strings with all the columns padded the same length.
     def self.tablize(rows)
       max_sizes = rows.inject([0]*rows.first.size) do |sizes, vals|
+        vals.map! &:to_s
         vals.each_with_index { |val, i| sizes[i] = val.size if val.size > sizes[i] }; sizes
       end
       rows.map { |vals| vals.each_with_index.map { |val, i| val.to_s.ljust(max_sizes[i]) } }
