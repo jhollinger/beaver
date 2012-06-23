@@ -16,7 +16,7 @@ of the "hits" array in a "dam" block, see the Beaver::Request class.
   [sudo] gem install beaver
 
 == Use beaver with a DSL file
-  hit :failed_login, :method => :post, :path => '/login', :status => 401
+  hit :failed_logins, :method => :post, :path => '/login', :status => 401
 
   hit :new_widgets, :path => '/widgets', :method => :post, :status => 302 do
     puts "A Widget named #{params[:widget][:name]} was created!"
@@ -31,9 +31,9 @@ of the "hits" array in a "dam" block, see the Beaver::Request class.
     puts "user 1 was tagged at #{path} - other tags were: #{tags.join(', ')}"
   end
 
-  hit :server_error, :status => (500..503)
+  hit :errors, :status => (500..503)
 
-  dam :failed_login do
+  dam :failed_logins do
     puts "Failed logins:"
     hits.group_by { |h| h.params[:username] } do |user, fails|
       puts " #{user}"
@@ -43,11 +43,8 @@ of the "hits" array in a "dam" block, see the Beaver::Request class.
     end
   end
 
-  dam :server_errors do
-    puts "Server errors:"
-    hits.group_by(&:status) do |status, errors|
-      puts " There were #{errors.size} #{status} errors"
-    end
+  dam :errors do
+    puts tablize(' | ') { |hit| [hit.status, hit.path, hit.ip, hit.time] }
   end
 
 Run ''beaver'' from the command line, passing in your beaver file and some logs:
