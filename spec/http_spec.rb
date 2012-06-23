@@ -49,7 +49,7 @@ describe Beaver do
   end
 
   it "should parse and match responses larger than n bytes" do
-    dam = @beaver.hit :favicon, :bigger_than => 776
+    dam = @beaver.hit :favicon, :larger_than => 776
     @beaver.filter
     dam.hits.size.should == 15
   end
