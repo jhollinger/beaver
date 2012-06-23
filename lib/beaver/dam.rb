@@ -68,6 +68,19 @@ module Beaver
       build matchers
     end
 
+    # Transforms arrays of values into rows with equally padded columns. 
+    # Useful for generating table-like formatting of hits.
+    # If delim is falsey, the columns will not be joined, but returned as arrays.
+    # 
+    # Example:
+    #
+    #  puts tablize { |hit| [hit.ip, hit.path, hit.status] }
+    def tablize(delim=' ', &block)
+      rows = Utils.tablize(hits.map &block)
+      rows.map! { |cols| cols.join(delim) } if delim
+      rows
+    end
+
     # Returns an array of IP address that hit this Dam.
     def ips
       @ips ||= @hits.map(&:ip).uniq

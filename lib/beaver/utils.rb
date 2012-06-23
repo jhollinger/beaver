@@ -92,6 +92,14 @@ module Beaver
       YAML.load s
     end
 
+    # Returns an array of arrays of strings with all the columns padded the same length.
+    def self.tablize(rows)
+      max_sizes = rows.inject([0]*rows.first.size) do |sizes, vals|
+        vals.each_with_index { |val, i| sizes[i] = val.size if val.size > sizes[i] }; sizes
+      end
+      rows.map { |vals| vals.each_with_index.map { |val, i| val.to_s.ljust(max_sizes[i]) } }
+    end
+
     # Parse a string (from a command-line arg) into a Date object
     def self.parse_date(date)
       case date

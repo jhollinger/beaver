@@ -54,33 +54,29 @@ Beaver.stream *args do
     if options[:print]
       options[:print].gsub!(/%\{/, '#{')
       arg_pattern = /#\{[^\}]+\}/
-      text = options[:print].split(arg_pattern)
-      text << '' if text.empty?
-      lines = []
-
-      # Map each hit to an array of values
-      hit :cli, matchers do
-        vals = options[:print].gsub(arg_pattern).map { |match| self.instance_eval(%Q|"#{match}"|) rescue '?' }
-        if options[:tablize]
-          lines << vals
-        else
-          puts text.map { |t| "#{t}#{vals.shift}" }.join
-        end
-      end
 
       # Make each column the same length
       if options[:tablize]
+        hit :cli, matchers
         dam :cli do
-          max_sizes = lines.inject([0]*lines.first.size) do |sizes, vals|
-            vals.each_with_index { |val, i| sizes[i] = val.size if val.size > sizes[i] }; sizes
+          text = options[:print].split(arg_pattern) << ''
+          tablize(false) do |hit|
+            options[:print].gsub(arg_pattern).map { |match| hit.instance_eval(%Q|"#{match}"|) rescue '?' }
+          end.each do |cols|
+            puts text.map { |t| "#{t}#{cols.shift}" }.join
           end
-          lines.map! { |vals| vals.each_with_index.map { |val, i| val.ljust(max_sizes[i]) } }
-          lines.each { |vals| puts text.map { |t| "#{t}#{vals.shift}" }.join }
+        end
+      # Just format and print
+      else
+        hit :cli, matchers do
+          puts options[:print].gsub(arg_pattern) { |match| self.instance_eval(%Q|"#{match}"|) rescue '?' }
         end
       end
     # Print the entirety of each entry
     else
-      hit :cli, matchers do puts to_s << $/ end
+      hit :cli, matchers do
+        puts to_s << $/
+      end
     end
   end
 end
