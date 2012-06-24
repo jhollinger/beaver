@@ -31,7 +31,7 @@ o = OptionParser.new do |opts|
   opts.on('--user-agent STRING', '      HTTP  User Agent, string or regex') { |ua| matchers[:user_agent] = Regexp.new(ua, Regexp::IGNORECASE) }
   opts.on('--regex REGEX', 'Rails HTTP  A regex string to be matched against the entire request') { |r| matchers[:match] = Regexp.new(r, Regexp::IGNORECASE) }
   opts.on('--print FORMAT', 'Formatted request string, e.g. "%{ip} went to %{path} passing %{params[:email]}"') { |hit| options[:print] = hit }
-  opts.on('--tablize', 'Print the formatted string in a table') { options[:tablize] = true }
+  opts.on('--tablize', 'Print output from --print in a table') { options[:tablize] = true }
   opts.on('--stdin', 'Read log content from stdin (for typing/pasting)') { options[:tty] = true }
   opts.on('-v', '--version', 'Print version and exit') { puts "beaver #{Beaver::VERSION}"; exit }
 end
