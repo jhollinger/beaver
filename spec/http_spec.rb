@@ -8,8 +8,13 @@ describe Beaver do
 
   it "should NOT parse and match the controller (Rails-only)" do
     dam = @beaver.hit :someone, :controller => 'foo'
-    @beaver.filter
-    dam.hits.size.should == 0
+    error_class = nil
+    begin
+      @beaver.filter
+    rescue StandardError => e
+      error_class = e.class
+    end
+    error_class.should == NoMethodError
   end
 
   it "should parse and match the path" do

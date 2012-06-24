@@ -116,12 +116,5 @@ module Beaver
 
     # Parses and returns the time at which the request was made
     def parse_time; nil; end
-
-    private
-
-    def method_missing(method)
-      #$stderr.puts "#{self.class.name} log entry does not have attribute \"#{method}\""
-      nil
-    end
   end
 end
