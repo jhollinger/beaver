@@ -6,7 +6,7 @@ require 'beaver'
 
 options, matchers = {}, {}
 o = OptionParser.new do |opts|
-  opts.banner = 'Usage: beaver [options] [dsl.rb...] [/rails/production.log...]'
+  opts.banner = 'Usage: beaver [options] [dsl.rb...] [/path/to/log...]'
   opts.on('--path PATH', 'Rails HTTP  URL path, string or regex') { |path| matchers[:path] = Regexp.new(path, Regexp::IGNORECASE) }
   opts.on('--method METHOD', 'Rails HTTP  HTTP request method(s), e.g. get or post,put') { |methods| matchers[:method] = methods.split(',').map { |m| m.downcase.to_sym } }
   opts.on('--controller CONTROLLER', 'Rails       Controller name or regex') { |c| matchers[:controller] = Regexp.new(c, Regexp::IGNORECASE) }
