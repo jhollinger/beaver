@@ -1,7 +1,9 @@
 ** RELEASE 1.3.0 (Pending) **
 
 * Added HTTP Combined Log parser (Apache, Nginx, etc.)
-* Minor bugfixes to :after and :before Date/Time options
+* Bugfixes to :after and :before Date/Time options
+* tablize now available inside "dam" blocks
+* --print now works with never-ending input like "tail -f ... | beaver ..."
 
 ** RELEASE 1.2.0 (01/30/2012) **
 
