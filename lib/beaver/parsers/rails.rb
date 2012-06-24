@@ -10,7 +10,7 @@ module Beaver
       REGEX_COMPLETED = /Completed (\d+)/
       REGEX_PATH = /^Started \w{3,4} "([^"]+)"/
       REGEX_PARAMS_STR = /  Parameters: (\{.+\})$/
-      REGEX_IP = /" for (\d+[\d.]+) at /
+      REGEX_IP = /" for ([a-zA-Z0-9:.]+) at /
       REGEX_FORMAT = /Processing by .+ as (\w+)$/
       REGEX_MS = / in (\d+)ms/
       REGEX_TAGS = /^(\[.+\] )+/
