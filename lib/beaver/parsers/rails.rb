@@ -1,22 +1,22 @@
 module Beaver
   module Parsers
-    # This appears to work with Rails 3 logs
+    # Parser for Rails log entries. See the Request class for more log entry attributes.
     class Rails < Request
-      REGEX_MATCH = /^Started [A-Z]+/
-      REGEX_METHOD = /^Started ([A-Z]+)/
-      REGEX_METHOD_OVERRIDE = /"_method"=>"([A-Z]+)"/i
-      REGEX_CONTROLLER = /Processing by (\w+Controller)#/
-      REGEX_ACTION = /Processing by \w+Controller#(\w+) as/
-      REGEX_COMPLETED = /Completed (\d+)/
-      REGEX_PATH = /^Started \w{3,4} "([^"]+)"/
-      REGEX_PARAMS_STR = /  Parameters: (\{.+\})$/
-      REGEX_IP = /" for ([a-zA-Z0-9:.]+) at /
-      REGEX_FORMAT = /Processing by .+ as (\w+)$/
-      REGEX_MS = / in (\d+)ms/
-      REGEX_TAGS = /^(\[.+\] )+/
-      REGEX_TAG = /\[([^\]]+)\] /
+      REGEX_MATCH = /^Started [A-Z]+/ # :nodoc:
+      REGEX_METHOD = /^Started ([A-Z]+)/ # :nodoc:
+      REGEX_METHOD_OVERRIDE = /"_method"=>"([A-Z]+)"/i # :nodoc:
+      REGEX_CONTROLLER = /Processing by (\w+Controller)#/ # :nodoc:
+      REGEX_ACTION = /Processing by \w+Controller#(\w+) as/ # :nodoc:
+      REGEX_COMPLETED = /Completed (\d+)/ # :nodoc:
+      REGEX_PATH = /^Started \w{3,4} "([^"]+)"/ # :nodoc:
+      REGEX_PARAMS_STR = /  Parameters: (\{.+\})$/ # :nodoc:
+      REGEX_IP = /" for ([a-zA-Z0-9:.]+) at / # :nodoc:
+      REGEX_FORMAT = /Processing by .+ as (\w+)$/ # :nodoc:
+      REGEX_MS = / in (\d+)ms/ # :nodoc:
+      REGEX_TAGS = /^(\[.+\] )+/ # :nodoc:
+      REGEX_TAG = /\[([^\]]+)\] / # :nodoc:
       # Depending on the version of Rails, the time format may be wildly different
-      REGEX_TIME = / at ([a-z0-9:\+\- ]+)$/i
+      REGEX_TIME = / at ([a-z0-9:\+\- ]+)$/i # :nodoc:
 
       # Returns true if/when we have the final line of the multi-line Rails request
       def completed?

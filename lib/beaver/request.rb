@@ -2,10 +2,11 @@ require 'date'
 require 'time'
 
 module Beaver
-  # Represents a single request from the logs.
+  # Represents a single request from the logs. The base class for Rails and HTTP log parsers. 
+  # Attributes common to both are defined here.
   class Request
-    BLANK_STR = ''
-    BLANK_HASH = {}
+    BLANK_STR = '' # :nodoc:
+    BLANK_HASH = {} # :nodoc:
 
     # Holds the Parser classes used to parser requests
     @types = []

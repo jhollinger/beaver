@@ -6,7 +6,11 @@ module Beaver
   # The block will be run in the context of the Request object. This can be used for 
   # further checks or for reporting purposes.
   # 
-  # Matchers:
+  #  hit :reads, :method => :get do
+  #    puts "#{ip} read from #{path} at #{time}"
+  #  end
+  # 
+  # Available matchers:
   #
   #  :path          Rails HTTP  String for exact match, or Regex
   #
@@ -72,9 +76,9 @@ module Beaver
     # Useful for generating table-like formatting of hits.
     # If delim is falsey, the columns will not be joined, but returned as arrays.
     # 
-    # Example:
-    #
-    #  puts tablize { |hit| [hit.ip, hit.path, hit.status] }
+    #  dam :errors do
+    #    puts tablize { |hit| [hit.ip, hit.path, hit.status] }
+    #  end
     def tablize(delim=' ', &block)
       rows = Utils.tablize(hits.map &block)
       rows.map! { |cols| cols.join(delim) } if delim

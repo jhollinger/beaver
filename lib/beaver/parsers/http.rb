@@ -1,23 +1,23 @@
 module Beaver
   module Parsers
-    # HTTP Common Log format
+    # Parser for HTTP Common Log entries. See the Request class for more log entry attributes.
     class HTTP < Request
       # The Combined Log Format
-      FORMAT = '%h %l %u %t \"%r\" %>s %b \"%{Referer}i\" \"%{User-agent}i\"'
+      FORMAT = '%h %l %u %t \"%r\" %>s %b \"%{Referer}i\" \"%{User-agent}i\"' # :nodoc:
       # The Combined Log Format as an array of symbols
-      FORMAT_SYMBOLS = FORMAT.split(' ').map(&:to_sym)
-      FHOST, FID, FUSER, FTIME, FREQUEST, FSTATUS, FSIZE, FREFERER, FUA = FORMAT_SYMBOLS
+      FORMAT_SYMBOLS = FORMAT.split(' ').map(&:to_sym) # :nodoc:
+      FHOST, FID, FUSER, FTIME, FREQUEST, FSTATUS, FSIZE, FREFERER, FUA = FORMAT_SYMBOLS # :nodoc:
 
       # Regex matchers keyed by opening quotes, etc.
-      MATCHERS = {'[' => /^\[([^\]]+)\] ?/, '"' => /^"([^"]+)" ?/}
+      MATCHERS = {'[' => /^\[([^\]]+)\] ?/, '"' => /^"([^"]+)" ?/} # :nodoc:
       MATCHERS.default = /^([^ ]+) ?/
 
       # Matches an HTTP Log entry
-      REGEX_MATCH = %r{\[[0-9]{2}/\w+/[0-9:]+ }
+      REGEX_MATCH = %r{\[[0-9]{2}/\w+/[0-9:]+ } # :nodoc:
       # Matches the request method, url and params
-      REGEX_REQUEST = /^([A-Z]+) (\/[^\?]+)\??(.*) HTTP\/1/
+      REGEX_REQUEST = /^([A-Z]+) (\/[^\?]+)\??(.*) HTTP\/1/ # :nodoc:
       # Matches the request date
-      REGEX_DATE = %r{^([0-9]{2}/[a-z]+/[0-9]+)}i
+      REGEX_DATE = %r{^([0-9]{2}/[a-z]+/[0-9]+)}i # :nodoc:
 
       # Partially parse the request
       def initialize(data)

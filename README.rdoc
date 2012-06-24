@@ -9,8 +9,8 @@ Beaver is a light DSL and command line utility for parsing HTTP and Rails produc
 * Rails 3.2 tagged logging is cool, but what's a good way to review them?
 
 Read the full documentation at {jordanhollinger.com/docs/beaver/}[http://jordanhollinger.com/docs/beaver/].
-For a full list of matchers available to "hit", see the Beaver::Dam class. For a full list of methods available inside a "hit" block, or to members
-of the "hits" array in a "dam" block, see the Beaver::Request class.
+For a full list of matchers available to "hit", see the Beaver::Dam class.
+For a full list of methods available inside a "hit" block, or to members of the "hits" array in a "dam" block, see the Beaver::Request, Beaver::Parsers::Rails, and Beaver::Parsers::HTTP classes.
 
 == Installation
   [sudo] gem install beaver

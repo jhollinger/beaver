@@ -4,16 +4,16 @@ require 'time'
 module Beaver
   # Sundry utility methods for use by Beaver
   module Utils
-    LBRACE, RBRACE = '{', '}'
-    LBRACKET, RBRACKET = '[', ']'
-    QUOTE = '"'
-    ESCAPE = '\\'
-    EQUAL = '='
-    COLIN = ':'
-    TO_SPACE = ['>']
-    SPACE = ' '
-    COMMA = ','
-    LETTER_REGEX = /^[a-z]$/i
+    LBRACE, RBRACE = '{', '}' # :nodoc:
+    LBRACKET, RBRACKET = '[', ']' # :nodoc:
+    QUOTE = '"' # :nodoc:
+    ESCAPE = '\\' # :nodoc:
+    EQUAL = '=' # :nodoc:
+    COLIN = ':' # :nodoc:
+    TO_SPACE = ['>'] # :nodoc:
+    SPACE = ' ' # :nodoc:
+    COMMA = ',' # :nodoc:
+    LETTER_REGEX = /^[a-z]$/i # :nodoc:
 
     # Converts a string representation of a Hash into YAML, then into a Hash.
     # This is targeted towards the Parameters value in Rails logs. It is assumed that every key is a represented as a String in the logs.

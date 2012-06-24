@@ -2,11 +2,11 @@
 # Rather, a DSL for finding out how people are using your Rails app (which could include performance).
 # Can also be used to parse/analyze HTTP access logs (Apache, Nginx, etc.)
 # 
-# Beaver.stream do
-#   hit :error, :status => (400..505) do
-#     puts "#{status} on #{path} at #{time} from #{ip} with #{params_str}"
-#   end
-# end
+#  Beaver.stream('/path/to/log/files') do
+#    hit :error, :status => (400..505) do
+#      puts "#{status} on #{path} at #{time} from #{ip} with #{params_str}"
+#    end
+#  end
 # 
 module Beaver
   # Creates a new Beaver and immediately filters the log files. This should scale well
@@ -31,18 +31,18 @@ module Beaver
   # The Beaver class, which keeps track of the files you're parsing, the Beaver::Dam objects you've defined,
   # and parses and filters the matching Beaver::Request objects.
   # 
-  # beaver = Beaver.new do
-  #   hit :help, :path => '/help' do
-  #     puts "#{ip} needed help"
-  #   end
-  # end
+  #  beaver = Beaver.new do
+  #    hit :help, :path => '/help' do
+  #      puts "#{ip} needed help"
+  #    end
+  #  end
   # 
-  # # Method 1 - logs will be parsed and filtered line-by-line, then discarded. Performance should be constant regardless of the number of logs.
-  # beaver.stream
+  #  # Method 1 - logs will be parsed and filtered line-by-line, then discarded. Performance should be constant regardless of the number of logs.
+  #  beaver.stream
   # 
-  # # Method 2 - all of the logs will be parsed at once and stored in "beaver.requests". Then each request will be filtered.
-  # # This does not scale as well, but is necessary *if you want to hang onto the parsed requests*.
-  # beaver.parse.filter
+  #  # Method 2 - all of the logs will be parsed at once and stored in "beaver.requests". Then each request will be filtered.
+  #  # This does not scale as well, but is necessary *if you want to hang onto the parsed requests*.
+  #  beaver.parse.filter
   # 
   class Beaver
     # The log files to parse
