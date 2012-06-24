@@ -70,14 +70,14 @@ module Beaver
     # Creates a new Dam and appends it to this Beaver. name should be a unique symbol.
     # See Beaver::Dam for available options.
     def hit(dam_name, matchers={}, &callback)
-      STDERR.puts "WARNING Overwriting existing hit '#{dam_name}'" if @dams.has_key? dam_name
+      $stderr.puts "WARNING Overwriting existing hit '#{dam_name}'" if @dams.has_key? dam_name
       matchers = @global_matchers.merge matchers
       @dams[dam_name] = Dam.new(dam_name, matchers, &callback)
     end
 
     # Define a sumarry for a Dam
     def dam(name, hit_options={}, &callback)
-      STDERR.puts "WARNING Overwriting existing dam '#{name}'" if @sums.has_key? name
+      $stderr.puts "WARNING Overwriting existing dam '#{name}'" if @sums.has_key? name
       @sums[name] = callback
       # Optionally create a new hit
       hit(name, hit_options) if @dams[name].nil?
@@ -158,7 +158,7 @@ module Beaver
             blk.call(@dams[dam_name]) if block_given?
           end
         else
-          STDERR.puts "WARNING You have defined a dam for '#{dam_name}', but there is no hit defined for '#{dam_name}'"
+          $stderr.puts "WARNING You have defined a dam for '#{dam_name}', but there is no hit defined for '#{dam_name}'"
         end
       end
     end
