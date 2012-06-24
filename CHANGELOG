@@ -4,6 +4,8 @@
 * Bugfixes to :after and :before Date/Time options
 * tablize now available inside "dam" blocks
 * --print now works with never-ending input like "tail -f ... | beaver ..."
+* Allow Rails log parser to see IPv6 addresses
+* Code cleanup
 
 ** RELEASE 1.2.0 (01/30/2012) **
 
