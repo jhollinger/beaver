@@ -87,7 +87,7 @@ module Beaver
     end
 
     # Returns true if the given Request hits this Dam, false if not.
-    def matches?(request)
+    def ===(request)
       return false if request.final?
       return false unless @match_path.nil? or @match_path === request.path
       return false unless @match_referer.nil? or @match_referer === request.referer
@@ -113,56 +113,13 @@ module Beaver
       return false unless @match_size_gt.nil? or request.size > @match_size_gt
       return false unless @match_r.nil? or @match_r =~ request.to_s
       if @deep_tag_match
-        return false unless @match_tags.nil? or (@match_tags.any? and request.tags_str and deep_matching_tags(@match_tags, request.tags))
+        return false unless @match_tags.nil? or (@match_tags.any? and request.tags_str and Utils.deep_matching_tags(@match_tags, request.tags))
       else
         return false unless @match_tags.nil? or (@match_tags.any? and request.tags_str and (@match_tags - request.tags).empty?)
       end
-      return false unless @match_params.nil? or matching_hashes?(@match_params, request.params)
+      return false unless @match_params.nil? or Utils.matching_hashes?(@match_params, request.params)
       return true
     end
-
-    private
-
-    # Matches tags recursively
-    def deep_matching_tags(matchers, tags)
-      all_tags_matched = nil
-      any_arrays_matched = false
-      for m in matchers
-        if m.is_a? Array
-          matched = deep_matching_tags m, tags
-          any_arrays_matched = true if matched
-        else
-          matched = tags.include? m
-          all_tags_matched = (matched && all_tags_matched != false) ? true : false
-        end
-      end
-      return (all_tags_matched or any_arrays_matched)
-    end
-
-    # Recursively compares to Hashes. If all of Hash A is in Hash B, they match.
-    def matching_hashes?(a,b)
-      intersecting_keys = a.keys & b.keys
-      if intersecting_keys.any?
-        a_values = a.values_at(*intersecting_keys)
-        b_values = b.values_at(*intersecting_keys)
-        indicies = (0..b_values.size-1)
-        indicies.all? do |i|
-          if a_values[i].is_a? String
-            a_values[i] == b_values[i]
-          elsif a_values[i].is_a?(Regexp) and b_values[i].is_a?(String)
-            a_values[i] =~ b_values[i]
-          elsif a_values[i].is_a?(Hash) and b_values[i].is_a?(Hash)
-            matching_hashes? a_values[i], b_values[i]
-          else
-            false
-          end
-        end
-      else
-        false
-      end
-    end
-
-    public
 
     # Parses and checks the validity of the matching options passed to the Dam.
     # XXX Yikes this is long and ugly...

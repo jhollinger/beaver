@@ -98,7 +98,46 @@ module Beaver
         vals.map! &:to_s
         vals.each_with_index { |val, i| sizes[i] = val.size if val.size > sizes[i] }; sizes
       end
-      rows.map { |vals| vals.each_with_index.map { |val, i| val.to_s.ljust(max_sizes[i]) } }
+      rows.map { |vals| vals.each_with_index.map { |val, i| val.ljust(max_sizes[i]) } }
+    end
+
+    # Matches tags recursively
+    def self.deep_matching_tags(matchers, tags)
+      all_tags_matched = nil
+      any_arrays_matched = false
+      for m in matchers
+        if m.is_a? Array
+          matched = deep_matching_tags m, tags
+          any_arrays_matched = true if matched
+        else
+          matched = tags.include? m
+          all_tags_matched = (matched && all_tags_matched != false) ? true : false
+        end
+      end
+      return (all_tags_matched or any_arrays_matched)
+    end
+
+    # Recursively compares to Hashes. If all of Hash A is in Hash B, they match.
+    def self.matching_hashes?(a,b)
+      intersecting_keys = a.keys & b.keys
+      if intersecting_keys.any?
+        a_values = a.values_at(*intersecting_keys)
+        b_values = b.values_at(*intersecting_keys)
+        indicies = (0..b_values.size-1)
+        indicies.all? do |i|
+          if a_values[i].is_a? String
+            a_values[i] == b_values[i]
+          elsif a_values[i].is_a?(Regexp) and b_values[i].is_a?(String)
+            a_values[i] =~ b_values[i]
+          elsif a_values[i].is_a?(Hash) and b_values[i].is_a?(Hash)
+            matching_hashes? a_values[i], b_values[i]
+          else
+            false
+          end
+        end
+      else
+        false
+      end
     end
 
     # Parse a string (from a command-line arg) into a Date object

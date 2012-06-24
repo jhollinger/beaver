@@ -138,7 +138,7 @@ module Beaver
     # Run the callback on each dam matching request. Optionally pass a block, which will be passed back matching dams.
     def hit_dams(request, &blk)
       for dam in @dams.values
-        if dam.matches? request
+        if dam === request
           catch :skip do
             request.instance_eval(&dam.callback) if dam.callback
             blk.call(dam) if block_given?
