@@ -184,7 +184,10 @@ module Beaver
       if @tty
         STDIN.read.each_line &parse_it # Read entire stream, then parse it - looks much better to the user
       elsif !STDIN.tty?
-        STDIN.each_line &parse_it
+        begin
+          STDIN.each_line &parse_it
+        rescue Interrupt
+        end
       end if @stdin
       request = nil
 
