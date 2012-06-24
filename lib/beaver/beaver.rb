@@ -76,9 +76,11 @@ module Beaver
     end
 
     # Define a sumarry for a Dam
-    def dam(name, &callback)
+    def dam(name, hit_options={}, &callback)
       STDERR.puts "WARNING Overwriting existing dam '#{name}'" if @sums.has_key? name
       @sums[name] = callback
+      # Optionally create a new hit
+      hit(name, hit_options) if @dams[name].nil?
     end
 
     # Parses the logs and immediately filters them through the dams. Requests are not retained,
