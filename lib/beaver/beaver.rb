@@ -187,6 +187,7 @@ module Beaver
         begin
           STDIN.each_line &parse_it
         rescue Interrupt
+          $stderr.puts 'Closing input stream; parsing input...'
         end
       end if @stdin
       request = nil
