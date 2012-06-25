@@ -75,7 +75,7 @@ Beaver.stream *args do
     # Print the entirety of each entry
     else
       hit :cli, matchers do
-        puts to_s << $/
+        puts to_s
       end
     end
   end
