@@ -1,4 +1,4 @@
-** RELEASE 1.3.0 (Pending) **
+** RELEASE 1.3.0 (06/25/2012) **
 
 * Added HTTP Combined Log parser (Apache, Nginx, etc.)
 * Bugfixes to :after and :before Date/Time options
