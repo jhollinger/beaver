@@ -2,7 +2,7 @@ require 'date'
 require 'time'
 
 module Beaver
-  # Represents a single request from the logs. The base class for Rails and HTTP log parsers. 
+  # Represents a single request from the logs. The base class for Beaver::Parsers::Rails and Beaver::Parsers::HTTP.
   # Attributes common to both are defined here.
   class Request
     BLANK_STR = '' # :nodoc:
@@ -24,7 +24,7 @@ module Beaver
 
     # Returns true if the given line look like a request of this class
     def self.match?(line)
-      self::REGEX_MATCH =~ line
+      self::REGEX_MATCH =~ line rescue false
     end
 
     # Accepts a String of log data, presumably ones which belong to a single request.
