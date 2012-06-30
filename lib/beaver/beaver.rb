@@ -174,7 +174,9 @@ module Beaver
           request = Request.for(line)
           next if request.nil?
         end
-        if request.completed?
+        if request.invalid?
+          request = Request.for(line)
+        elsif request.completed?
           blk.call(request)
           request = nil
         end

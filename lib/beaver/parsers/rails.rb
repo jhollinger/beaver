@@ -18,6 +18,10 @@ module Beaver
       # Depending on the version of Rails, the time format may be wildly different
       REGEX_TIME = / at ([a-z0-9:\+\- ]+)$/i # :nodoc:
 
+      def invalid?
+        @data.scan(REGEX_MATCH).size > 1
+      end
+
       # Returns true if/when we have the final line of the multi-line Rails request
       def completed?
         REGEX_COMPLETED =~ @data

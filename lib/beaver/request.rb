@@ -91,6 +91,9 @@ module Beaver
       @final
     end
 
+    # Returns true if this request has become invalid during reconstitution
+    def invalid?; false; end
+
     # Returns true if the request has all the information it needs to be properly parsed
     def completed?; true; end
 

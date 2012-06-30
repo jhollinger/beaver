@@ -24,6 +24,8 @@ Started POST "/big_form" for 216.84.130.30 at 2011-08-30 10:08:50 -0400
 Redirected to http://example.com/big_form
 Completed 302 Found in 26ms
 
+Started GET "/cashtracker" for 76.177.247.3 at 2012-01-29 18:52:24 -0500
+
 Started GET "/cashtracker/ledgers" for 76.177.247.3 at 2012-01-29 18:52:24 -0500
 [foo] [bar] Processing by LedgersController#index as HTML
 [foo] [bar]   Rendered ledgers/index.html.erb within layouts/application (7.9ms)

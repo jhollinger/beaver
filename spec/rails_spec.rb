@@ -155,4 +155,12 @@ describe Beaver do
     @beaver.filter
     dam.hits.size.should == 3
   end
+
+  it "ignore incomplete requests" do
+    dam1 = @beaver.hit :root, :path => '/cashtracker'
+    dam2 = @beaver.hit :ledgers, :path => '/cashtracker/ledgers'
+    @beaver.filter
+    dam1.hits.size.should == 0
+    dam2.hits.size.should == 1
+  end
 end
