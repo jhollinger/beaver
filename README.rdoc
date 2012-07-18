@@ -55,6 +55,15 @@ Run ''beaver'' from the command line, passing in your beaver file and some logs:
   require 'rubygems'
   require 'beaver'
 
+  Beaver.stream '/path/to/httpd/access_logs*' do
+    hit :failed_logins, :method => :post, :path => '/login', :status => 401
+    dam :failed_logins do
+      puts "#{hits.size} failed logins!"
+    end
+  end
+
+Or with even less DSL...
+
   beaver = Beaver.new('/path/to/httpd/access_logs*')
   beaver.hit :failed_logins, :method => :post, :path => '/login', :status => 401
   beaver.dam :failed_logins do
