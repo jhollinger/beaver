@@ -1,7 +1,17 @@
-# Not specifically a performance analyzer (like https://github.com/wvanbergen/request-log-analyzer/wiki)
-# Rather, a DSL for finding out how people are using your Rails app (which could include performance).
+# A DSL and library for finding out how people are using your Rails app.
 # Can also be used to parse/analyze HTTP access logs (Apache, Nginx, etc.)
+#
+#  # Parse and return the requests
+#  requests = Beaver.parse('/path/to/log/files')
+#
+#  # Parse, filters, and returns the requests (all requests are always returned)
+#  requests = Beaver.filter('/path/to/log/files') do
+#    hit :error, :status => (400..505) do
+#      puts "#{status} on #{path} at #{time} from #{ip} with #{params_str}"
+#    end
+#  end
 # 
+#  # Parse and filters the requests, returns nil
 #  Beaver.stream('/path/to/log/files') do
 #    hit :error, :status => (400..505) do
 #      puts "#{status} on #{path} at #{time} from #{ip} with #{params_str}"
@@ -9,18 +19,24 @@
 #  end
 # 
 module Beaver
-  # Creates a new Beaver and immediately filters the log files. This should scale well
-  # for even very large logs, at least when compared to Beaver#parse.
-  def self.stream(*args, &blk)
-    raise ArgumentError, 'You must pass a block to Beaver#stream' unless block_given?
-    Beaver.new(*args, &blk).stream
+  # Parses the logs and returns the requests.
+  def self.parse(*args)
+    Beaver.new(*args).parse.requests
   end
 
-  # Identical to Beaver#stream, except that the requests are retained, so you may
-  # examine them afterwards. For large logs, this may be noticibly inefficient.
-  def self.parse(*args, &blk)
-    raise ArgumentError, 'You must pass a block to Beaver#parse' unless block_given?
-    Beaver.new(*args, &blk).parse.filter
+  # Parses the logs and filters them through the given block. Parsed requests 
+  # are returned.
+  def self.filter(*args, &blk)
+    Beaver.new(*args, &blk).parse.filter.requests
+  end
+
+  # Parses the logs and filters them through the (optional) block. Parsed requests are
+  # not retained, hence are not returned. Returns nil.
+  # 
+  # In theory, this should be more memory efficient than Beaver#parse.
+  def self.stream(*args, &blk)
+    Beaver.new(*args, &blk).stream
+    nil
   end
 
   # Alias to Beaver::Beaver.new
@@ -84,7 +100,7 @@ module Beaver
     end
 
     # Parses the logs and immediately filters them through the dams. Requests are not retained,
-    # so this should scale well to very large sets of logs.
+    # so this should scale better to very large sets of logs.
     def stream
       # Match the request against each dam, and run the dam's callback
       _parse do |request|
