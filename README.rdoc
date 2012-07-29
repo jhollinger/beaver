@@ -73,7 +73,7 @@ Or with even less DSL...
 
 Or as just a parser (no filtering)...
 
-requests = Beaver.parse('/path/to/rails/production.log*')
+  requests = Beaver.parse('/path/to/rails/production.log*')
 
 == Use beaver as part of the *nix toolchain
 
