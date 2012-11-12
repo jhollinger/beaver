@@ -70,6 +70,10 @@ Or with even less DSL...
   end
   beaver.stream
 
+Or just to parse and return the matching requests...
+
+  requests = Beaver.dam('/path/to/rails/production.log*', :method => :put)
+
 Or as just a parser (no filtering)...
 
   requests = Beaver.parse('/path/to/rails/production.log*')

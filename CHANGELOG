@@ -1,4 +1,4 @@
-** RELEASE 1.4.0 (?) **
+** RELEASE 1.4.0 (11/12/2012) **
 
 * Rename Beaver.parse to Beaver.filter
 * Added [a new] Beaver.parse, which just parses and returns the requests, with no option to filter
