@@ -24,8 +24,8 @@ module Beaver
     Beaver.new(*args).parse.requests
   end
 
-  # Parses the logs and filters them through the given block. Parsed requests 
-  # are returned.
+  # Parses the logs and filters them through the given block. *All* parsed requests 
+  # are returned, not just the ones that matched. This is useful for when you take your action(s) on the matching reqeusts *inside* the block, but you still want access to all the requsts afterwords.
   def self.filter(*args, &blk)
     Beaver.new(*args, &blk).parse.filter.requests
   end
@@ -33,10 +33,19 @@ module Beaver
   # Parses the logs and filters them through the (optional) block. Parsed requests are
   # not retained, hence are not returned. Returns nil.
   # 
-  # In theory, this should be more memory efficient than Beaver#parse.
+  # In theory, this should be more memory efficient than Beaver#filter.
   def self.stream(*args, &blk)
     Beaver.new(*args, &blk).stream
     nil
+  end
+
+  # Parses the logs and filters them through the provided matcher options. Returns *only* the matching requests.
+  def self.dam(*args)
+    beaver = Beaver.new(*args)
+    dam = beaver.hit :hits
+    beaver.parse
+    beaver.filter
+    dam.hits
   end
 
   # Alias to Beaver::Beaver.new
