@@ -7,7 +7,7 @@ Gem::Specification.new do |spec|
   spec.summary = "Rails log parser"
   spec.description = "A simple DSL and command-line tool for discovering what people are up to in your Rails app"
   spec.authors = ['Jordan Hollinger']
-  spec.date = '2012-11-12'
+  spec.date = '2014-01-28'
   spec.email = 'jordan@jordanhollinger.com'
   spec.homepage = 'http://github.com/jhollinger/beaver'
 
