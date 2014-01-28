@@ -1,3 +1,9 @@
+** RELEASE 1.4.1 (01/28/2014) **
+
+* Add query string parsing (to a Hash) to HTTP Log parser
+* Bugfix to parsing and matching HTTP logs on datetime
+* Bugfixes to tests
+
 ** RELEASE 1.4.0 (11/12/2012) **
 
 * Rename Beaver.parse to Beaver.filter

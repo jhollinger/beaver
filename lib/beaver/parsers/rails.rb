@@ -47,11 +47,6 @@ module Beaver
         @ms ||= REGEX_MS.match(@data) ? $1.to_i : 0
       end
 
-      # Returns the request parameters as a Hash (this is more expensive than Request#params_str)
-      def params
-        @params ||= params_str.empty? ? BLANK_HASH : Utils.str_to_hash(params_str)
-      end
-
       # Returns the tags string associated with the request (e.g. "[tag1] [tag2] ")
       def tags_str
         @tags_str ||= REGEX_TAGS.match(@data) ? $1 : nil
@@ -87,6 +82,11 @@ module Beaver
       # Parses and returns the response status
       def parse_status
         REGEX_COMPLETED.match(@data) ? $1.to_i : 0
+      end
+
+      # Parses and returns the request parameters as a Hash
+      def parse_params
+        params_str.empty? ? BLANK_HASH : Utils.str_to_hash(params_str)
       end
 
       # Parses and returns the request parameters as a String

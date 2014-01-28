@@ -127,6 +127,8 @@ module Beaver
         indicies.all? do |i|
           if a_values[i].is_a? String
             a_values[i] == b_values[i]
+          elsif a_values[i].is_a? Array
+            a_values[i] == b_values[i]
           elsif a_values[i].is_a?(Regexp) and b_values[i].is_a?(String)
             a_values[i] =~ b_values[i]
           elsif a_values[i].is_a?(Hash) and b_values[i].is_a?(Hash)

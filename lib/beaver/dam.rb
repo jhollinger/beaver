@@ -38,7 +38,7 @@ module Beaver
   # 
   #  :params_str    Rails HTTP  Regular expressing matching the Parameters string
   # 
-  #  :params        Rails       Hash of Symbol=>String/Regexp pairs: {:username => 'bob', :email => /@gmail\.com$/}. All must match.
+  #  :params        Rails HTTP  Hash of Symbol=>String/Regexp pairs: {:username => 'bob', :email => /@gmail\.com$/}. All must match (but *not* all must be present).
   # 
   #  :tagged        Rails       Comma-separated String or Array of Rails Tagged Logger tags. If you specify multiple tags, a request must have *all* of them.
   # 

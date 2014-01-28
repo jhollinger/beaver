@@ -3,6 +3,7 @@ begin
 rescue LoadError
   $stderr.puts "Zlib not available; compressed log files will be skipped."
 end
+require 'cgi'
 
 require 'beaver/version'
 require 'beaver/utils'

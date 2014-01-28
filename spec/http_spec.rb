@@ -66,13 +66,19 @@ describe Beaver do
   end
 
   it "should parse the datetime" do
-    dam = @beaver.hit :datetime, :before => Time.now + 40000
+    dam = @beaver.hit :datetime, :before => Time.local(2013, 01, 01, 0, 0, 0)
     @beaver.filter
     dam.hits.size.should == 26
   end
 
   it "should parse the URL params string" do
     dam = @beaver.hit :faz, :params_str => /foo=bar/
+    @beaver.filter
+    dam.hits.size.should == 1
+  end
+
+  it "should parse the URL params" do
+    dam = @beaver.hit :faz, :params => {'foo' => 'bar'}
     @beaver.filter
     dam.hits.size.should == 1
   end

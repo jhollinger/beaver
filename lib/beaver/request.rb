@@ -56,6 +56,11 @@ module Beaver
       @status ||= parse_status
     end
 
+    # Returns the request parameters as a Hash (this is more expensive than Request#params_str)
+    def params
+      @params ||= parse_params
+    end
+
     # Returns the request parameters as a String
     def params_str
       @params_str ||= parse_params_str

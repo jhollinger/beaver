@@ -7,6 +7,7 @@ module Beaver
       # The Combined Log Format as an array of symbols
       FORMAT_SYMBOLS = FORMAT.split(' ').map(&:to_sym) # :nodoc:
       FHOST, FID, FUSER, FTIME, FREQUEST, FSTATUS, FSIZE, FREFERER, FUA = FORMAT_SYMBOLS # :nodoc:
+      REGEX_TIME_FIX = /([0-9]{4}):([0-9]{2})/
 
       # Regex matchers keyed by opening quotes, etc.
       MATCHERS = {'[' => /^\[([^\]]+)\] ?/, '"' => /^"([^"]+)" ?/} # :nodoc:
@@ -35,6 +36,18 @@ module Beaver
       def path
         parse_request! if @path.nil?
         @path
+      end
+
+      # Parses and returns the request parameters as a Hash
+      def parse_params
+        params_str.empty? ? BLANK_HASH : CGI::parse(params_str).inject({}) do |hash, (param, value)|
+          hash[param] = if value.is_a?(Array) and value.size == 1 and param !~ /\[\d*\]$/
+            value[0]
+          else
+            value
+          end
+          hash
+        end
       end
 
       # Returns the url query string
@@ -86,7 +99,7 @@ module Beaver
 
       # Parses and returns the time at which the request was made
       def parse_time
-        time_str = @request[FTIME].gsub(/([0-9]{4}):([0-9]{2})/, "#{$1} #{$2}")
+        time_str = @request[FTIME].sub(REGEX_TIME_FIX) { "#{$1} #{$2}" }
         Time.parse(time_str) rescue nil
       end
 
