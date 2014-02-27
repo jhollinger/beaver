@@ -4,11 +4,11 @@ module Beaver
     class Rails < Request
       REGEX_MATCH = /^Started [A-Z]+/ # :nodoc:
       REGEX_METHOD = /^Started ([A-Z]+)/ # :nodoc:
-      REGEX_METHOD_OVERRIDE = /"_method"=>"([A-Z]+)"/i # :nodoc:
+      REGEX_METHOD_OVERRIDE = /"_method"=>"([A-Za-z]+)"/:# :nodoc:
       REGEX_CONTROLLER = /Processing by (\w+Controller)#/ # :nodoc:
       REGEX_ACTION = /Processing by \w+Controller#(\w+) as/ # :nodoc:
       REGEX_COMPLETED = /Completed (\d+)/ # :nodoc:
-      REGEX_PATH = /^Started \w{3,4} "([^"]+)"/ # :nodoc:
+      REGEX_PATH = /^Started [A-Z]+ "([^"]+)"/ # :nodoc:
       REGEX_PARAMS_STR = /  Parameters: (\{.+\})$/ # :nodoc:
       REGEX_IP = /" for ([a-zA-Z0-9:.]+) at / # :nodoc:
       REGEX_FORMAT = /Processing by .+ as (\w+)$/ # :nodoc:
