@@ -1,5 +1,5 @@
-** RELEASE 1.4.2 ? **
-* Bugfixes for Rails 4 logs
+** RELEASE 1.4.2 (02/26/2014) **
+* Bugfix in Rails parser for HTTP methods longer than 4 characters
 
 ** RELEASE 1.4.1 (01/28/2014) **
 
