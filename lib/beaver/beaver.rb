@@ -199,11 +199,19 @@ module Beaver
           request = Request.for(line)
           next if request.nil?
         end
-        if request.invalid?
-          request = Request.for(line)
-        elsif request.completed?
-          blk.call(request)
-          request = nil
+        begin
+          if request.invalid?
+            request = Request.for(line)
+          elsif request.completed?
+            blk.call(request)
+            request = nil
+          end
+        rescue ArgumentError => e
+          if e.message =~ /invalid byte sequence in UTF-8/
+            request = nil
+          else
+            raise e.class, e.message
+          end
         end
       }
 

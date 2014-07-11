@@ -1,3 +1,6 @@
+** RELEASE 1.4.3 (10/07/2014) **
+* Bugfix in Rails parser for requests with invalid encodings
+
 ** RELEASE 1.4.2 (02/26/2014) **
 * Bugfix in Rails parser for HTTP methods longer than 4 characters
 
