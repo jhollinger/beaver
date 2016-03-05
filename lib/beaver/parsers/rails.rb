@@ -12,7 +12,7 @@ module Beaver
       REGEX_PARAMS_STR = /  Parameters: (\{.+\})$/ # :nodoc:
       REGEX_IP = /" for ([a-zA-Z0-9:.]+) at / # :nodoc:
       REGEX_FORMAT = /Processing by .+ as (\w+)$/ # :nodoc:
-      REGEX_MS = / in (\d+)ms/ # :nodoc:
+      REGEX_MS = / in (\d+\.?\d*)ms/ # :nodoc:
       REGEX_TAGS = /^(\[.+\] )+/ # :nodoc:
       REGEX_TAG = /\[([^\]]+)\] / # :nodoc:
       # Depending on the version of Rails, the time format may be wildly different
@@ -44,7 +44,7 @@ module Beaver
 
       # Returns the number of milliseconds it took for the request to complete
       def ms
-        @ms ||= REGEX_MS.match(@data) ? $1.to_i : 0
+        @ms ||= REGEX_MS.match(@data) ? $1.to_f : 0
       end
 
       # Returns the tags string associated with the request (e.g. "[tag1] [tag2] ")
