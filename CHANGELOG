@@ -1,3 +1,6 @@
+** RELEASE 1.4.4 (03/05/2016) ((
+* Parse float response time - https://github.com/jhollinger/beaver/pull/9 - https://github.com/bwarminski
+
 ** RELEASE 1.4.3 (10/07/2014) **
 * Bugfix in Rails parser for requests with invalid encodings
 
