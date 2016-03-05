@@ -6,6 +6,7 @@ require File.dirname(__FILE__) + '/../lib/beaver'
 
 RSpec.configure do |c|
   c.mock_with :rspec
+  c.expect_with(:rspec) { |c| c.syntax = :should }
 end
 
 RAILS_LOGS = File.dirname(__FILE__) + '/data/rails.log*'
